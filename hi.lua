@@ -56,12 +56,12 @@ local Library = {
     Options = {},
     Themes = {
         Default = {
-            Main = Color3.fromRGB(10, 10, 12),      
-            Section = Color3.fromRGB(18, 18, 20),   
-            Accent = Color3.fromRGB(255, 0, 127),   
-            Outline = Color3.fromRGB(60, 20, 45),   
-            Inline = Color3.fromRGB(35, 35, 40),    
-            Text = Color3.fromRGB(255, 265, 255),   
+            Main = Color3.fromRGB(15, 15, 15),
+            Section = Color3.fromRGB(22, 22, 22),
+            Accent = Color3.fromRGB(255, 0, 127),
+            Outline = Color3.fromRGB(45, 45, 45),
+            Inline = Color3.fromRGB(30, 30, 30),
+            Text = Color3.fromRGB(235, 235, 235),
             Font = Fonts.ProggyClean
         }
     }
