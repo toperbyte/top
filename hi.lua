@@ -113,7 +113,7 @@ function Library:CreateWindow(info)
         Size = UDim2.new(0, 625 + 35, 0, 545 + 35),
         Position = UDim2.new(0.5, -(625/2 + 17), 0.5, -(545/2 + 17)),
         BackgroundColor3 = Color3.fromRGB(15, 15, 15),
-        ZIndex = 9999998,
+        ZIndex = 2,
         Parent = ScreenGui
     })
     Library:AddShadow(Outer)
@@ -123,7 +123,7 @@ function Library:CreateWindow(info)
         Size = UDim2.new(0, 625, 0, 545),
         Position = UDim2.new(0.5, -625/2, 0.5, -545/2),
         BackgroundColor3 = Theme.Main,
-        ZIndex = 9999999,
+        ZIndex = 95,
         Parent = ScreenGui
     })
 
