@@ -102,23 +102,60 @@ end
 
 function Library:CreateWindow(info)
     local Theme = self.Themes.Default
-    local ScreenGui = self:Create("ScreenGui", { Name = "ExoriaLib", Parent = CG, ZIndexBehavior = Enum.ZIndexBehavior.Sibling })
-    local Main = self:Create("Frame", { Size = UDim2.new(0, 625, 0, 545), Position = UDim2.new(0.5, -275, 0.5, -300), ZIndex = 9e9, BackgroundColor3 = Theme.Main, Parent = ScreenGui })
-    local Outer = self:Create("Frame", {
-    Size = UDim2.new(0, 625 + 35, 0, 545 + 35),
-    Position = UDim2.new(0.5, -330, 0.5, -291),
-    BackgroundColor3 = Theme.Outline,
-    Parent = Main
+    local ScreenGui = self:Create("ScreenGui", {
+        Name = "ExoriaLib",
+        Parent = CG,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     })
-   local ac = self:Create("Frame", { Size = UDim2.new(1, 0, 0, 2), BackgroundColor3 = Theme.Accent, Parent = Main })
+
+    
+    local Outer = self:Create("Frame", {
+        Size = UDim2.new(0, 625 + 35, 0, 545 + 35),
+        Position = UDim2.new(0.5, -(625/2 + 17), 0.5, -(545/2 + 17)),
+        BackgroundColor3 = Theme.Outline,
+        ZIndex = 9999998,
+        Parent = ScreenGui
+    })
+    Library:AddShadow(Outer)
+
+    
+    local Main = self:Create("Frame", {
+        Size = UDim2.new(0, 625, 0, 545),
+        Position = UDim2.new(0.5, -625/2, 0.5, -545/2),
+        BackgroundColor3 = Theme.Main,
+        ZIndex = 9999999, 
+        Parent = ScreenGui
+    })
+
     self:MakeDraggable(Main)
+
+    local ac = self:Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 2),
+        BackgroundColor3 = Theme.Accent,
+        Parent = Main
+    })
     Library:AddShadow(ac)
-    local TabHolder = self:Create("Frame", { Size = UDim2.new(1, -20, 0, 36), Position = UDim2.new(0, 10, 0, 10), BackgroundColor3 = Theme.Inline, Parent = Main })
+
+    local TabHolder = self:Create("Frame", {
+        Size = UDim2.new(1, -20, 0, 36),
+        Position = UDim2.new(0, 10, 0, 10),
+        BackgroundColor3 = Theme.Inline,
+        Parent = Main
+    })
     Library:AddShadow(TabHolder)
     self:Create("UIStroke", { Color = Theme.Outline, Parent = TabHolder })
-    local TabList = self:Create("UIListLayout", { FillDirection = "Horizontal", Parent = TabHolder })
 
-    local Container = self:Create("Frame", { Size = UDim2.new(1, -20, 1, -66), Position = UDim2.new(0, 10, 0, 56), BackgroundColor3 = Theme.Main, Parent = Main })
+    local TabList = self:Create("UIListLayout", {
+        FillDirection = "Horizontal",
+        Parent = TabHolder
+    })
+
+    local Container = self:Create("Frame", {
+        Size = UDim2.new(1, -20, 1, -66),
+        Position = UDim2.new(0, 10, 0, 56),
+        BackgroundColor3 = Theme.Main,
+        Parent = Main
+    })
     self:Create("UIStroke", { Color = Theme.Outline, Parent = Container })
 
     local Window = { TabButtons = {} }
