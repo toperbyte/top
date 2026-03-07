@@ -123,7 +123,7 @@ function Library:CreateWindow(info)
         Size = UDim2.new(0, 625, 0, 545),
         Position = UDim2.new(0.5, -625/2, 0.5, -545/2),
         BackgroundColor3 = Theme.Main,
-        ZIndex = 9999999, 
+        ZIndex = 9999999,
         Parent = ScreenGui
     })
 
@@ -157,6 +157,16 @@ function Library:CreateWindow(info)
         Parent = Main
     })
     self:Create("UIStroke", { Color = Theme.Outline, Parent = Container })
+
+    
+    game:GetService("RunService").RenderStepped:Connect(function()
+        Outer.Position = UDim2.new(
+            Main.Position.X.Scale,
+            Main.Position.X.Offset - 17,
+            Main.Position.Y.Scale,
+            Main.Position.Y.Offset - 17
+        )
+    end)
 
     local Window = { TabButtons = {} }
 
