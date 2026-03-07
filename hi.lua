@@ -130,7 +130,7 @@ function Library:CreateWindow(info)
     self:MakeDraggable(Main)
 
     local ac = self:Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 2),
+        Size = UDim2.new(1, 0, 0, 4),
         BackgroundColor3 = Theme.Accent,
         Parent = Main
     })
