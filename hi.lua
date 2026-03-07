@@ -103,15 +103,15 @@ end
 function Library:CreateWindow(info)
     local Theme = self.Themes.Default
     local ScreenGui = self:Create("ScreenGui", { Name = "ExoriaLib", Parent = CG, ZIndexBehavior = Enum.ZIndexBehavior.Sibling })
-    local Main = self:Create("Frame", { Size = UDim2.new(0, 625, 0, 545), Position = UDim2.new(0.5, -275, 0.5, -300), BackgroundColor3 = Theme.Main, Parent = ScreenGui })
+    local Main = self:Create("Frame", { Size = UDim2.new(0, 625, 0, 545), Position = UDim2.new(0.5, -275, 0.5, -300), ZIndex = 2, BackgroundColor3 = Theme.Main, Parent = ScreenGui })
     local Outer = self:Create("Frame", {
     Size = UDim2.new(0, 625 + 35, 0, 545 + 35),
-    Position = UDim2.new(0.5, 0, 0.5, 0),
+    Position = UDim2.new(0.5, -330, 0.5, -291),
     BackgroundColor3 = Theme.Outline,
     Parent = Main
     })
    local ac = self:Create("Frame", { Size = UDim2.new(1, 0, 0, 2), BackgroundColor3 = Theme.Accent, Parent = Main })
-    self:MakeDraggable(Outer)
+    self:MakeDraggable(Main)
     Library:AddShadow(ac)
     local TabHolder = self:Create("Frame", { Size = UDim2.new(1, -20, 0, 36), Position = UDim2.new(0, 10, 0, 10), BackgroundColor3 = Theme.Inline, Parent = Main })
     Library:AddShadow(TabHolder)
