@@ -55,13 +55,13 @@ local FontNames = {
 local Library = {
     Options = {},
     Themes = {
-        Default = {
-            Main = Color3.fromRGB(15, 15, 15),
-            Section = Color3.fromRGB(22, 22, 22),
-            Accent = Color3.fromRGB(0, 170, 255),
-            Outline = Color3.fromRGB(45, 45, 45),
-            Inline = Color3.fromRGB(30, 30, 30),
-            Text = Color3.fromRGB(235, 235, 235),
+        NeonPink = {
+            Main = Color3.fromRGB(10, 10, 12),      
+            Section = Color3.fromRGB(18, 18, 20),   
+            Accent = Color3.fromRGB(255, 0, 127),   
+            Outline = Color3.fromRGB(60, 20, 45),   
+            Inline = Color3.fromRGB(35, 35, 40),    
+            Text = Color3.fromRGB(255, 265, 255),   
             Font = Fonts.ProggyClean
         }
     }
@@ -77,7 +77,7 @@ end
 function Library:AddShadow(parent)
     return self:Create("UIGradient", {
         Rotation = 90,
-        Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(170, 170, 170)),
+        Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(130, 130, 130)),
         Parent = parent
     })
 end
@@ -193,10 +193,17 @@ function Library:CreateWindow(info)
                 local T = { Value = cfg.Default or false }
                 local B = Library:Create("TextButton", { Size = UDim2.new(1, 0, 0, 18), BackgroundTransparency = 1, Text = "", Parent = ContentObj })
                 local Box = Library:Create("Frame", { Size = UDim2.new(0, 14, 0, 14), Position = UDim2.new(0, 0, 0.5, -8), BackgroundColor3 = Theme.Inline, Parent = B }); Library:Create("UIStroke", { Color = Theme.Outline, Parent = Box })
-                local Inner = Library:Create("Frame", { Size = UDim2.new(1, 0, 1, 0), Position = UDim2.new(0, 0, 0, 0), BackgroundColor3 = T.Value and Theme.Accent or Theme.Section, Parent = Box }); Library:AddShadow(Inner)
-                Library:Create("TextLabel", { Size = UDim2.new(1, -26, 1, 0), Position = UDim2.new(0, 26, 0, 0), Text = cfg.Text or id, TextColor3 = Theme.Text, FontFace = Theme.Font, TextSize = 13, TextXAlignment = "Left", BackgroundTransparency = 1, Parent = B })
+                local Inner = Library:Create("Frame", { Size = UDim2.new(1, -4, 1, -4), Position = UDim2.new(0, 2, 0, 2), BackgroundColor3 = T.Value and Theme.Accent or Theme.Section, BackgroundTransparency = T.Value and 0 or 1, Parent = Box })
+                local Glow = Library:Create("ImageLabel", { Size = UDim2.new(2, 0, 2, 0), Position = UDim2.new(-0.5, 0, -0.5, 0), BackgroundTransparency = 1, Image = "rbxassetid://3523727242", ImageColor3 = Theme.Accent, ImageTransparency = T.Value and 0.5 or 1, Parent = Inner })
+                Library:Create("TextLabel", { Size = UDim2.new(1, -26, 1, 0), Position = UDim2.new(0, 26, 0, 0), Text = cfg.Text or id, TextColor3 = T.Value and Theme.Text or Color3.fromRGB(160, 160, 160), FontFace = Theme.Font, TextSize = 13, TextXAlignment = "Left", BackgroundTransparency = 1, Parent = B })
                 local Holder = createAddonHolder(B)
-                function T:SetValue(v) self.Value = v; Inner.BackgroundColor3 = v and Theme.Accent or Theme.Section; if cfg.Callback then cfg.Callback(v) end end
+                function T:SetValue(v)
+                    self.Value = v
+                    game:GetService("TweenService"):Create(Inner, TweenInfo.new(0.15), { BackgroundColor3 = v and Theme.Accent or Theme.Section, BackgroundTransparency = v and 0 or 1 }):Play()
+                    game:GetService("TweenService"):Create(Glow, TweenInfo.new(0.15), { ImageTransparency = v and 0.5 or 1 }):Play()
+                    game:GetService("TweenService"):Create(B.TextLabel, TweenInfo.new(0.15), { TextColor3 = v and Theme.Text or Color3.fromRGB(160, 160, 160) }):Play()
+                    if cfg.Callback then cfg.Callback(v) end
+                end
                 B.MouseButton1Click:Connect(function() T:SetValue(not T.Value) end)
                 function T:AddColorPicker(id2, ccfg) return addColorPicker(Holder, id2, ccfg) end
                 function T:AddKeybind(id2, kcfg) return addKeybind(Holder, id2, kcfg) end
@@ -204,31 +211,26 @@ function Library:CreateWindow(info)
             end
 
             function Elements:AddSlider(id, cfg)
- local S = { Value = cfg.Default or cfg.Min }
- local F = Library:Create("Frame", { Size = UDim2.new(1, 0, 0, 36), BackgroundTransparency = 1, Parent = ContentObj })
- Library:Create("TextLabel", { Size = UDim2.new(1, 0, 0, 14), Text = cfg.Text or id, TextColor3 = Theme.Text, FontFace = Theme.Font, TextSize = 12, TextXAlignment = "Left", BackgroundTransparency = 1, Parent = F })
- local Bar = Library:Create("Frame", { Size = UDim2.new(1, 0, 0, 8), Position = UDim2.new(0, 0, 0, 18), BackgroundColor3 = Theme.Inline, Parent = F }); Library:Create("UIStroke", { Color = Theme.Outline, Parent = Bar })
- local Fill = Library:Create("Frame", { Size = UDim2.new((S.Value-cfg.Min)/(cfg.Max-cfg.Min), 0, 1, 0), BackgroundColor3 = Theme.Accent, Parent = Bar }); Library:AddShadow(Fill)
- local Val = Library:Create("TextLabel", { Size = UDim2.new(0, 30, 0, 12), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, Text = S.Value.."/"..cfg.Max, TextColor3 = Theme.Text, FontFace = Theme.Font, TextSize = 10, Parent = Bar })
- 
- function S:SetValue(v) 
-  v = math.floor(math.clamp(v, cfg.Min, cfg.Max)); 
-  self.Value = v; 
-  Fill.Size = UDim2.new((v-cfg.Min)/(cfg.Max-cfg.Min), 0, 1, 0); 
-  Val.Text = v.."/"..cfg.Max; 
-  if cfg.Callback then cfg.Callback(v) end 
- end
- 
- Bar.InputBegan:Connect(function(i) 
-  if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then 
-   handleInput(Bar, function(x) S:SetValue(cfg.Min + (cfg.Max-cfg.Min)*x) end) 
-  end 
- end)
- 
- Library.Options[id] = S 
- return S
-end
-
+                local S = { Value = cfg.Default or cfg.Min }
+                local F = Library:Create("Frame", { Size = UDim2.new(1, 0, 0, 32), BackgroundTransparency = 1, Parent = ContentObj })
+                Library:Create("TextLabel", { Size = UDim2.new(1, 0, 0, 14), Text = cfg.Text or id, TextColor3 = Theme.Text, FontFace = Theme.Font, TextSize = 12, TextXAlignment = "Left", BackgroundTransparency = 1, Parent = F })
+                local Bar = Library:Create("Frame", { Size = UDim2.new(1, 0, 0, 4), Position = UDim2.new(0, 0, 0, 20), BackgroundColor3 = Theme.Inline, Parent = F }); Library:Create("UIStroke", { Color = Theme.Outline, Parent = Bar })
+                local Fill = Library:Create("Frame", { Size = UDim2.new((S.Value-cfg.Min)/(cfg.Max-cfg.Min), 0, 1, 0), BackgroundColor3 = Theme.Accent, Parent = Bar }); Library:AddShadow(Fill)
+                local Val = Library:Create("TextLabel", { Size = UDim2.new(0, 30, 0, 10), Position = UDim2.new(1, 0, 1, 2), AnchorPoint = Vector2.new(1, 0), BackgroundTransparency = 1, Text = S.Value.."/"..cfg.Max, TextColor3 = Theme.Text, FontFace = Theme.Font, TextSize = 10, TextXAlignment = "Right", Parent = Bar })
+                function S:SetValue(v)
+                    v = math.floor(math.clamp(v, cfg.Min, cfg.Max)); 
+                    self.Value = v; 
+                    Fill.Size = UDim2.new((v-cfg.Min)/(cfg.Max-cfg.Min), 0, 1, 0); 
+                    Val.Text = v.."/"..cfg.Max; 
+                    if cfg.Callback then cfg.Callback(v) end 
+                end
+                Bar.InputBegan:Connect(function(i)
+                    if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+                        handleInput(Bar, function(x) S:SetValue(cfg.Min + (cfg.Max-cfg.Min)*x) end)
+                    end
+                end)
+                Library.Options[id] = S return S
+            end
             function Elements:AddListBox(id, cfg)
                 local L = { Value = {}, List = cfg.List or {}, MultiSelect = cfg.MultiSelect or false }
                 local F = Library:Create("Frame", { Size = UDim2.new(1, 0, 0, (cfg.Height or 120) + 22), BackgroundTransparency = 1, Parent = ContentObj })
