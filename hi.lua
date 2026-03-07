@@ -112,7 +112,7 @@ function Library:CreateWindow(info)
     local Outer = self:Create("Frame", {
         Size = UDim2.new(0, 625 + 35, 0, 545 + 35),
         Position = UDim2.new(0.5, -(625/2 + 17), 0.5, -(545/2 + 17)),
-        BackgroundColor3 = Theme.Outline,
+        BackgroundColor3 = Color3.fromRGB(15, 15, 15),
         ZIndex = 9999998,
         Parent = ScreenGui
     })
