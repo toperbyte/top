@@ -104,7 +104,12 @@ function Library:CreateWindow(info)
     local Theme = self.Themes.Default
     local ScreenGui = self:Create("ScreenGui", { Name = "ExoriaLib", Parent = CG, ZIndexBehavior = Enum.ZIndexBehavior.Sibling })
     local Main = self:Create("Frame", { Size = UDim2.new(0, 625, 0, 545), Position = UDim2.new(0.5, -275, 0.5, -300), BackgroundColor3 = Theme.Main, Parent = ScreenGui })
-    
+    local Outer = self:Create("Frame", {
+    Size = UDim2.new(0, 625 + 70, 0, 545 + 70),
+    Position = UDim2.new(0.5, -(625/2 + 35), 0.5, -(545/2 + 35)),
+    BackgroundColor3 = Theme.Outline,
+    Parent = ScreenGui
+    })
    local ac = self:Create("Frame", { Size = UDim2.new(1, 0, 0, 2), BackgroundColor3 = Theme.Accent, Parent = Main })
     self:MakeDraggable(Main)
     Library:AddShadow(ac)
