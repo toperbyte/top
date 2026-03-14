@@ -184,7 +184,7 @@ function Library:CreateWindow(info)
         local TabBtn = Library:Create("TextButton", { BackgroundColor3 = Theme.Inline, Text = name:upper(), TextColor3 = Theme.Text, FontFace = Theme.Font, TextSize = 12, Parent = TabHolder })
         local uc = self:Create("UIGradient", {
             Rotation = 90,
-            Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(160, 160, 170)),
+            Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(160, 160, 160)),
             Parent = TabBtn
         })
         table.insert(Window.TabButtons, {Btn = TabBtn, Page = TabPage})
