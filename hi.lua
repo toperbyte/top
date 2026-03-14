@@ -182,6 +182,11 @@ function Library:CreateWindow(info)
         end
 
         local TabBtn = Library:Create("TextButton", { BackgroundColor3 = Theme.Inline, Text = name:upper(), TextColor3 = Theme.Text, FontFace = Theme.Font, TextSize = 12, Parent = TabHolder })
+        local uc = self:Create("UIGradient", {
+            Rotation = 90,
+            Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(160, 160, 170)),
+            Parent = TabBtn
+        })
         table.insert(Window.TabButtons, {Btn = TabBtn, Page = TabPage})
         for _, v in pairs(Window.TabButtons) do v.Btn.Size = UDim2.new(1/#Window.TabButtons, 0, 1, 0) end
 
