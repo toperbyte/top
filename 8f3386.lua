@@ -242,10 +242,7 @@
             Frame.InputBegan:Connect(onInputBegan)
             Frame.InputEnded:Connect(onInputEnded)
 
-            if library.is_mobile then
-                Frame.TouchLongPress:Connect(onInputBegan)
-                Frame.TouchTap:Connect(onInputEnded)
-            end
+        
 
             library:connection(uis.InputChanged, function(input, game_event) 
                 if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
@@ -2128,10 +2125,7 @@
                 toggle_button.MouseButton1Click:Connect(onToggleClick)
                 text.MouseButton1Click:Connect(onToggleClick)
 
-                if library.is_mobile then
-                    toggle_button.TouchTap:Connect(onToggleClick)
-                    text.TouchTap:Connect(onToggleClick)
-                end
+            
             -- 
 
             return setmetatable(cfg, library)
@@ -2679,9 +2673,7 @@
 
                 dropdown.MouseButton1Click:Connect(onDropdownClick)
                 
-                if library.is_mobile then
-                    dropdown.TouchTap:Connect(onDropdownClick)
-                end
+                
 
                 dropdown:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
                     dropdown_holder.Size = dim2(0, dropdown.AbsoluteSize.X, 0, dropdown_holder.Size.Y.Offset)
@@ -2778,10 +2770,7 @@
 
                 button.MouseButton1Click:Connect(onColorPickerClick)
                 
-                if library.is_mobile then
-                    button.TouchTap:Connect(onColorPickerClick)
-                end
-
+            
                 button:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
                     colorpicker.outline.Position = dim_offset(button.AbsolutePosition.X + 1, button.AbsolutePosition.Y + button.AbsoluteSize.Y + 63)
                 end)
