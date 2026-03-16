@@ -1565,7 +1565,7 @@
                     PaddingLeft = dim(0, 9)
                 })
                 
-                -
+                
                 local page_holder = library:create("Frame", {
                     Parent = background,
                     Name = "",
