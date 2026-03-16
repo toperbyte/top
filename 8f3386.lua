@@ -1073,10 +1073,9 @@
                 BackgroundColor3 = rgb(12, 12, 12)
             })
 
-            local h, s, v = cfg.color:ToHSV() 
+            local h, s, v = cfg.color:ToHSV()
             local a = cfg.alpha
 
-            -- Color Selections
                 local colorpicker_picker = library:create("Frame", {
                     Parent = INSTANCE_HOLDERS,
                     Name = "",
@@ -1135,10 +1134,12 @@
                     LineJoinMode = Enum.LineJoinMode.Miter
                 })                
                 
-                local sat = library:create("Frame", {
+                local sat = library:create("TextButton", {
                     Parent = background,
                     Name = "",
                     Size = dim2(1, 0, 1, 0),
+                    Text = "", 
+                    AutoButtonColor = false, 
                     BorderColor3 = rgb(0, 0, 0),
                     ZIndex = 2,
                     BorderSizePixel = 0,
@@ -1153,9 +1154,11 @@
                     Color = rgbseq{rgbkey(0, rgb(0, 0, 0)), rgbkey(1, rgb(0, 0, 0))}
                 })
                 
-                local val = library:create("Frame", {
+                local val = library:create("TextButton", {
                     Parent = background,
                     Name = "",
+                    Text = "", 
+                    AutoButtonColor = false, 
                     Rotation = 180,
                     BorderColor3 = rgb(0, 0, 0),
                     Size = dim2(1, 0, 1, 0),
@@ -1169,9 +1172,11 @@
                     Transparency = numseq{numkey(0, 0), numkey(1, 1)}
                 })
                 
-                local hue = library:create("Frame", {
+                local hue = library:create("TextButton", {
                     Parent = colorpicker_picker,
                     Name = "",
+                    Text = "", 
+                    AutoButtonColor = false, 
                     AnchorPoint = vec2(1, 0),
                     Position = dim2(1, -32, 0, 6),
                     BorderColor3 = rgb(0, 0, 0),
@@ -1217,9 +1222,11 @@
                     ZIndex = 3
                 })
                 
-                local alpha = library:create("Frame", {
+                local alpha = library:create("TextButton", {
                     Parent = colorpicker_picker,
                     Name = "",
+                    Text = "", 
+                    AutoButtonColor = false, 
                     AnchorPoint = vec2(1, 0),
                     Position = dim2(1, -8, 0, 6),
                     BorderColor3 = rgb(0, 0, 0),
@@ -1277,9 +1284,7 @@
                     Rotation = 90,
                     Transparency = numseq{numkey(0, 0), numkey(1, 1)}
                 })
-            -- 
             
-            -- Tab Button Holders
                 local text_holder = library:create("Frame", {
                     Parent = INSTANCE_HOLDERS,
                     Name = "",
@@ -1312,41 +1317,95 @@
                     AutomaticSize = Enum.AutomaticSize.XY,
                     TextSize = 12,
                     BackgroundColor3 = rgb(255, 255, 255)
-                })library:applyTheme(colorpicker_tab, "accent", "TextColor3")
-                
+                })   
+                library:applyTheme(colorpicker_tab, "accent", "TextColor3")
                 local UIPadding = library:create("UIPadding", {
                     Parent = text_holder,
                     Name = "",
                     PaddingLeft = dim(0, 10)
                 })
-            -- 
 
-            -- Functions 
+            local function updateUI()
+                local hueValue = 1 - h
+                local hueOffset = (hueValue < 1 and hueValue > 0) and -2 or (hueValue <= 0 and 0 or -4)
+                hue_picker.Position = dim2(0, 0, hueValue, hueOffset)
+
+                local alphaOffset = (a < 1 and a > 0) and -2 or (a <= 0 and 0 or -4)
+                alpha_picker.Position = dim2(0, 0, a, alphaOffset)
+                alpha_drag.BackgroundColor3 = hsv(h, s, v)
+
+                local sOffset = (s < 1 and s > 0) and -3 or (s <= 0 and 0 or -3)
+                local vOffset = (1 - v < 1 and 1 - v > 0) and -3 or ((1 - v) <= 0 and 0 or -3)
+                dragging_sat_val.Position = dim2(s, sOffset, 1 - v, vOffset)
+
+                val.BackgroundColor3 = hsv(h, 1, 1)
+                sat.BackgroundColor3 = hsv(h, 1, 1)
+            end
+
+            local function applyToTarget()
+                local finalColor = hsv(h, s, v)
+                
+                if options.alphaPath then
+                    options.alphaPath.ImageTransparency = a
+                end
+                if options.colorPath then
+                    options.colorPath.BackgroundColor3 = finalColor
+                end
+                
+                if cfg.callback then
+                    cfg.callback(finalColor, a)
+                end
+                
+                flags[cfg.flag] = {
+                    Color = finalColor,
+                    Transparency = a
+                }
+            end
+
                 function cfg.updateColor() 
                     local touch_pos = uis:GetTouchLocation()
                     local mouse_pos = uis:GetMouseLocation()
                     local pos = library.is_mobile and touch_pos or mouse_pos
                     
-                    if draggingSaturation then	
-                        local relativePos = Vector2.new(
-                            pos.X - sat.AbsolutePosition.X,
-                            pos.Y - sat.AbsolutePosition.Y
-                        )
-                        s = math.clamp(relativePos.X / sat.AbsoluteSize.X, 0, 1)
-                        v = 1 - math.clamp(relativePos.Y / sat.AbsoluteSize.Y, 0, 1)
+                    if draggingSaturation then
+                        local x = (pos.X - sat.AbsolutePosition.X) / sat.AbsoluteSize.X
+                        local y = (pos.Y - sat.AbsolutePosition.Y) / sat.AbsoluteSize.Y
+                        
+                        if x < 0 then x = 0 end
+                        if x > 1 then x = 1 end
+                        if y < 0 then y = 0 end
+                        if y > 1 then y = 1 end
+                        
+                        s = x
+                        v = 1 - y
+                        
+                        updateUI()
+                        applyToTarget()
                     end
                     
-                    if draggingHue then 
-                        local relativePos = pos.Y - hue.AbsolutePosition.Y
-                        h = 1 - math.clamp(relativePos / hue.AbsoluteSize.Y, 0, 1)
+                    if draggingHue then
+                        local y = (pos.Y - hue.AbsolutePosition.Y) / hue.AbsoluteSize.Y
+                        
+                        if y < 0 then y = 0 end
+                        if y > 1 then y = 1 end
+                        
+                        h = 1 - y
+                        
+                        updateUI()
+                        applyToTarget()
                     end
                     
-                    if draggingAlpha then 
-                        local relativePos = pos.Y - alpha.AbsolutePosition.Y
-                        a = math.clamp(relativePos / alpha.AbsoluteSize.Y, 0, 1)
+                    if draggingAlpha then
+                        local y = (pos.Y - alpha.AbsolutePosition.Y) / alpha.AbsoluteSize.Y
+                        
+                        if y < 0 then y = 0 end
+                        if y > 1 then y = 1 end
+                        
+                        a = y
+                        
+                        updateUI()
+                        applyToTarget()
                     end
-
-                    cfg.set(nil, nil)
                 end  
 
                 function cfg.setVisible(bool)
@@ -1367,92 +1426,43 @@
                         a = alpha
                     end 
                     
-                    local Color = hsv(h, s, v)
-                    
-                    -- Editing the window colorpicker
-                        -- Hue
-                        local value = 1 - h
-                        local offset = (value < 1 and value > 0) and -2 or (value <= 0 and 0 or -4)
-                        hue_picker.Position = dim2(0, 0, value, offset)
-
-                        -- Alpha
-                        local offset = (a < 1 and a > 0) and -2 or (a <= 0 and 0 or -4)
-                        alpha_picker.Position = dim2(0, 0, a, offset)
-                        alpha_drag.BackgroundColor3 = hsv(h, s, v)
-
-                        -- Sat / Val
-                        local s_offset = (s < 1 and s > 0) and -3 or (s <= 0 and 0 or -3)
-                        local v_offset = (1 - v < 1 and 1 - v > 0) and -3 or ((1 - v) <= 0 and 0 or -3)
-                        dragging_sat_val.Position = dim2(s, s_offset, 1 - v, v_offset)
-
-                        val.BackgroundColor3 = hsv(h, 1, 1)
-                        sat.BackgroundColor3 = hsv(h, 1, 1)
-                    -- 
-
-                    -- For the origin colorpicker
-                        if options.alphaPath then
-                            options.alphaPath.ImageTransparency = a 
-                        end
-                        if options.colorPath then
-                            options.colorPath.BackgroundColor3 = Color
-                        end
-                    -- 
-
-                    if cfg.callback then 
-                        cfg.callback(Color, a)
-                    end 
-                    flags[cfg.flag] = {
-                        Color = Color;
-                        Transparency = a 
-                    }
+                    updateUI()
+                    applyToTarget()
                 end 
                 
                 cfg.set(cfg.color, cfg.alpha)
                 
                 library.config_flags[cfg.flag] = cfg.set
-            -- 
 
-            -- Connections
-                -- Colorpicker Init 
-                    -- Input begin for saturation
-                    sat.InputBegan:Connect(function(input)
-                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                            draggingSaturation = true
-                        end
-                    end)
-
-                    -- Input begin for hue
-                    hue.InputBegan:Connect(function(input)
-                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                            draggingHue = true
-                        end
-                    end)
-
-                    -- Input begin for alpha
-                    alpha.InputBegan:Connect(function(input)
-                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                            draggingAlpha = true
-                        end
-                    end)
-        
-                    uis.InputEnded:Connect(function(input)
-                        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                            draggingSaturation = false
-                            draggingHue = false
-                            draggingAlpha = false 
-                        end
-                    end)
-                    
-                    uis.InputChanged:Connect(function(input)
-                        if (draggingSaturation or draggingHue or draggingAlpha) and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                            cfg.updateColor() 
-                        end
-                    end)	
-                -- 
-            -- 
+                sat.MouseButton1Down:Connect(function()
+                    draggingSaturation = true 
+                end)
+    
+                hue.MouseButton1Down:Connect(function()
+                    draggingHue = true 
+                end)
+    
+                alpha.MouseButton1Down:Connect(function()
+                    draggingAlpha = true 
+                end)
+    
+                uis.InputEnded:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                        draggingSaturation = false
+                        draggingHue = false
+                        draggingAlpha = false 
+                    end
+                end)
+                
+                uis.InputChanged:Connect(function(input)
+                    if (draggingSaturation or draggingHue or draggingAlpha) and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                        cfg.updateColor() 
+                    end
+                end)	
 
             return setmetatable(cfg, library)
         end
+                    
     
         
     -- Library element functions
