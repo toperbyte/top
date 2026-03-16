@@ -1565,7 +1565,7 @@
                     PaddingLeft = dim(0, 9)
                 })
                 
-                -- 移除外部滚动条，改用内部section滚动
+                -
                 local page_holder = library:create("Frame", {
                     Parent = background,
                     Name = "",
@@ -1754,7 +1754,7 @@
                     BackgroundColor3 = rgb(13, 13, 13)
                 })
                 
-                -- 移除原来的UIListLayout，改用左右布局
+                
                 local left_section_frame = library:create("Frame", {
                     Parent = cfg["page"],
                     Name = "LeftSection",
@@ -1775,7 +1775,7 @@
                     AutomaticSize = Enum.AutomaticSize.Y
                 })
                 
-                -- 存储左右section容器
+                
                 cfg.left_section_holder = left_section_frame
                 cfg.right_section_holder = right_section_frame
             -- 
@@ -1820,7 +1820,7 @@
             return setmetatable(cfg, library)    
         end 
 
-        -- 移除column函数，添加left和right函数
+        
         function library:left()
             return setmetatable({section_holder = self.left_section_holder}, library)
         end
@@ -1834,13 +1834,13 @@
                 name = properties.name or properties.Name or "section",
             }   
 
-            -- 计算总高度
+            
             local function calculateTotalHeight()
-                local total_height = 16 -- 顶部padding
+                local total_height = 16
                 if cfg.elements then
                     for _, child in ipairs(cfg.elements:GetChildren()) do
                         if child:IsA("GuiObject") then
-                            total_height = total_height + child.AbsoluteSize.Y + 3 -- 3是间距
+                            total_height = total_height + child.AbsoluteSize.Y + 3
                         end
                     end
                 end
@@ -1852,10 +1852,10 @@
                     Parent = self.section_holder,
                     Name = "",
                     BorderColor3 = rgb(0, 0, 0),
-                    Size = dim2(1, 0, 0, 0), -- 初始高度0，稍后自动计算
+                    Size = dim2(1, 0, 0, 0),
                     BorderSizePixel = 0,
                     BackgroundColor3 = rgb(12, 12, 12),
-                    AutomaticSize = Enum.AutomaticSize.Y -- 自动调整高度
+                    AutomaticSize = Enum.AutomaticSize.Y --
                 })
                 
                 local inline = library:create("Frame", {
@@ -1929,7 +1929,7 @@
                 })
             -- 
 
-            -- 监听元素变化，更新section_filler大小
+        
             UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
                 section_filler.Size = dim2(0, section_title.TextBounds.X, 0, 3)
             end)
@@ -1937,7 +1937,7 @@
             return setmetatable(cfg, library)
         end 
 
-        -- Elements (保持不变，但确保它们正确添加到section.elements)
+        
         function library:addToggle(options) 
             local cfg = {
                 enabled = options.enabled or nil,
