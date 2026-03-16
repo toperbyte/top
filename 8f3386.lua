@@ -1017,7 +1017,7 @@
                 
             return setmetatable(cfg, library)
         end 
-
+--[[
         function library:keyPicker(options) 
             local cfg = {
                 name = options.name or "Color", 
@@ -1462,7 +1462,399 @@
 
             return setmetatable(cfg, library)
         end
-                    
+       --]]
+        function library:keyPicker(options) 
+            local cfg = {
+                name = options.name or "Color", 
+                flag = options.flag or tostring(2^789),
+                color = options.color or color(1, 1, 1),
+                alpha = options.alpha or 1,
+                ignore = options.ignore or false, 
+                callback = options.callback or function() end,
+                open = false 
+            }
+
+            local draggingSaturation = false
+            local draggingHue = false
+            local draggingAlpha = false
+
+            local OUTLINE = library:create("Frame", {
+                Parent = library.gui,
+                Name = "",
+                Visible = false, 
+                Position = dim2(0, 120, 0, 228),
+                BorderColor3 = rgb(0, 0, 0),
+                Size = dim2(0, 261, 0, 236),
+                BorderSizePixel = 0,
+                BackgroundColor3 = rgb(1, 1, 1),
+                ZIndex = 999, 
+            })
+
+            library:draggify(OUTLINE)
+            library:makeResizable(OUTLINE)
+            cfg.outline = OUTLINE
+
+            local inline = library:create("Frame", {
+                Parent = OUTLINE,
+                Name = "",
+                Position = dim2(0, 1, 0, 1),
+                BorderColor3 = rgb(0, 0, 0),
+                Size = dim2(1, -2, 1, -2),
+                BorderSizePixel = 0,
+                BackgroundColor3 = rgb(45, 45, 45)
+            })  
+
+            local INSTANCE_HOLDERS = library:create("Frame", {
+                Parent = inline,
+                Name = "",
+                Position = dim2(0, 1, 0, 1),
+                BorderColor3 = rgb(0, 0, 0),
+                Size = dim2(1, -2, 1, -2),
+                BorderSizePixel = 0,
+                BackgroundColor3 = rgb(12, 12, 12)
+            })
+
+            local h, s, v = cfg.color:ToHSV()
+            local a = cfg.alpha
+
+                local colorpicker_picker = library:create("Frame", {
+                    Parent = INSTANCE_HOLDERS,
+                    Name = "",
+                    Visible = true,
+                    BorderColor3 = rgb(0, 0, 0),
+                    BackgroundTransparency = 1,
+                    Position = dim2(0, 0, 0, 20),
+                    Size = dim2(1, 0, 1, -26),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(255, 255, 255)
+                })
+
+                local outline = library:create("Frame", {
+                    Parent = colorpicker_picker,
+                    Name = "",
+                    Position = dim2(0, 6, 0, 6),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -62, 1, -5),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(1, 1, 1)
+                })
+
+                local inline = library:create("Frame", {
+                    Parent = outline,
+                    Name = "",
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(45, 45, 45)
+                })
+
+                local background = library:create("Frame", {
+                    Parent = inline,
+                    Name = "",
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(255, 255, 255)
+                })
+
+                local dragging_sat_val = library:create("Frame", {
+                    Parent = background,
+                    Name = "",
+                    Size = dim2(0, 6, 0, 6),
+                    BorderColor3 = rgb(0, 0, 0),
+                    ZIndex = 2,
+                    BorderSizePixel = 1,
+                    BackgroundColor3 = rgb(255, 255, 255)
+                })
+
+                library:create("UIStroke", {
+                    Parent = dragging_sat_val,
+                    Name = "",
+                    LineJoinMode = Enum.LineJoinMode.Miter
+                })                
+
+                local sat = library:create("TextButton", {
+                    Parent = background,
+                    Name = "",
+                    Size = dim2(1, 0, 1, 0),
+                    Text = "", 
+                    AutoButtonColor = false, 
+                    BorderColor3 = rgb(0, 0, 0),
+                    ZIndex = 2,
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(255, 183, 0)
+                })
+
+                local UIGradient = library:create("UIGradient", {
+                    Parent = sat,
+                    Name = "",
+                    Rotation = 270,
+                    Transparency = numseq{numkey(0, 0), numkey(1, 1)},
+                    Color = rgbseq{rgbkey(0, rgb(0, 0, 0)), rgbkey(1, rgb(0, 0, 0))}
+                })
+
+                local val = library:create("TextButton", {
+                    Parent = background,
+                    Name = "",
+                    Text = "", 
+                    AutoButtonColor = false, 
+                    Rotation = 180,
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, 0, 1, 0),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(255, 183, 0)
+                })
+
+                local UIGradient = library:create("UIGradient", {
+                    Parent = val,
+                    Name = "",
+                    Transparency = numseq{numkey(0, 0), numkey(1, 1)}
+                })
+
+                local hue = library:create("TextButton", {
+                    Parent = colorpicker_picker,
+                    Name = "",
+                    Text = "", 
+                    AutoButtonColor = false, 
+                    AnchorPoint = vec2(1, 0),
+                    Position = dim2(1, -32, 0, 6),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(0, 16, 1, -5),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(1, 1, 1)
+                })
+
+                local outline = library:create("Frame", {
+                    Parent = hue,
+                    Name = "",
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(45, 45, 45)
+                })
+
+                local Frame = library:create("Frame", {
+                    Parent = outline,
+                    Name = "",
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(255, 255, 255)
+                })
+
+                local UIGradient = library:create("UIGradient", {
+                    Parent = Frame,
+                    Name = "",
+                    Rotation = 270,
+                    Color = rgbseq{rgbkey(0, rgb(255, 0, 0)), rgbkey(0.17, rgb(255, 255, 0)), rgbkey(0.33, rgb(0, 255, 0)), rgbkey(0.5, rgb(0, 255, 255)), rgbkey(0.67, rgb(0, 0, 255)), rgbkey(0.83, rgb(255, 0, 255)), rgbkey(1, rgb(255, 0, 0))}
+                })
+
+                local hue_picker = library:create("Frame", {
+                    Parent = Frame,
+                    Name = "",
+                    BorderMode = Enum.BorderMode.Inset,
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, 0, 0, 4),
+                    BackgroundColor3 = rgb(255, 255, 255),
+                    ZIndex = 3
+                })
+
+                local alpha = library:create("TextButton", {
+                    Parent = colorpicker_picker,
+                    Name = "",
+                    Text = "", 
+                    AutoButtonColor = false, 
+                    AnchorPoint = vec2(1, 0),
+                    Position = dim2(1, -8, 0, 6),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(0, 16, 1, -5),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(1, 1, 1)
+                })
+
+                local outline = library:create("Frame", {
+                    Parent = alpha,
+                    Name = "",
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(45, 45, 45)
+                })
+
+                local alpha_drag = library:create("Frame", {
+                    Parent = outline,
+                    Name = "",
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(255, 183, 0)
+                })
+
+                local alpha_picker = library:create("Frame", {
+                    Parent = alpha_drag,
+                    Name = "",
+                    BorderMode = Enum.BorderMode.Inset,
+                    BorderColor3 = rgb(0, 0, 0),
+                    ZIndex = 2,
+                    Size = dim2(1, 0, 0, 4),
+                    BackgroundColor3 = rgb(255, 255, 255)
+                })
+
+                local alphaind = library:create("ImageLabel", {
+                    Parent = alpha_drag,
+                    Name = "",
+                    ScaleType = Enum.ScaleType.Tile,
+                    BorderColor3 = rgb(0, 0, 0),
+                    Image = "rbxassetid://18274452449",
+                    BackgroundTransparency = 1,
+                    Size = dim2(1, 0, 1, 0),
+                    TileSize = dim2(0, 6, 0, 6),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(255, 183, 0)
+                })
+
+                local UIGradient = library:create("UIGradient", {
+                    Parent = alphaind,
+                    Name = "",
+                    Rotation = 90,
+                    Transparency = numseq{numkey(0, 0), numkey(1, 1)}
+                })
+
+                local text_holder = library:create("Frame", {
+                    Parent = INSTANCE_HOLDERS,
+                    Name = "",
+                    BackgroundTransparency = 1,
+                    Position = dim2(0, 0, 0, 5),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, 0, 0, 12),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(255, 255, 255)
+                })
+
+                local UIListLayout = library:create("UIListLayout", {
+                    Parent = text_holder,
+                    Name = "",
+                    Padding = dim(0, 10),
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    SortOrder = Enum.SortOrder.LayoutOrder
+                })
+
+                local colorpicker_tab = library:create("TextButton", {
+                    Parent = text_holder,
+                    Name = "",
+                    FontFace = library.font,
+                    TextColor3 = themes.preset.accent,
+                    BorderColor3 = rgb(0, 0, 0),
+                    Text = "color",
+                    AnchorPoint = vec2(1, 0),
+                    BackgroundTransparency = 1,
+                    BorderSizePixel = 0,
+                    AutomaticSize = Enum.AutomaticSize.XY,
+                    TextSize = 12,
+                    BackgroundColor3 = rgb(255, 255, 255)
+                })library:applyTheme(colorpicker_tab, "accent", "TextColor3")
+
+                local UIPadding = library:create("UIPadding", {
+                    Parent = text_holder,
+                    Name = "",
+                    PaddingLeft = dim(0, 10)
+                })
+
+            local function updateDisplay()
+                sat.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
+                val.BackgroundColor3 = Color3.fromHSV(h, 1, 1)
+                alpha_drag.BackgroundColor3 = Color3.fromHSV(h, s, v)
+                
+                dragging_sat_val.Position = UDim2.new(s, -3, 1 - v, -3)
+                hue_picker.Position = UDim2.new(0, -2, 1 - h, -2)
+                alpha_picker.Position = UDim2.new(0, -2, a, -2)
+            end
+
+            local function updateColor()
+                local finalColor = Color3.fromHSV(h, s, v)
+                
+                if options.alphaPath then
+                    options.alphaPath.ImageTransparency = a
+                end
+                if options.colorPath then
+                    options.colorPath.BackgroundColor3 = finalColor
+                end
+                
+                if cfg.callback then
+                    cfg.callback(finalColor, a)
+                end
+                
+                flags[cfg.flag] = {
+                    Color = finalColor,
+                    Transparency = a
+                }
+                
+                updateDisplay()
+            end
+
+            local function handleDrag(frame, callback)
+                frame.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                        local conn
+                        conn = uis.InputChanged:Connect(function()
+                            local mouse = uis:GetMouseLocation()
+                            local x = (mouse.X - frame.AbsolutePosition.X) / frame.AbsoluteSize.X
+                            local y = (mouse.Y - frame.AbsolutePosition.Y) / frame.AbsoluteSize.Y
+                            callback(x, y)
+                            updateColor()
+                        end)
+                        
+                        uis.InputEnded:Connect(function(input)
+                            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                                if conn then conn:Disconnect() end
+                            end
+                        end)
+                    end
+                end)
+            end
+
+            handleDrag(sat, function(x, y)
+                s = math.clamp(x, 0, 1)
+                v = 1 - math.clamp(y, 0, 1)
+            end)
+
+            handleDrag(hue, function(_, y)
+                h = 1 - math.clamp(y, 0, 1)
+            end)
+
+            handleDrag(alpha, function(_, y)
+                a = math.clamp(y, 0, 1)
+            end)
+
+            function cfg.setVisible(bool)
+                cfg.outline.Visible = bool
+                if bool then 
+                    library:closeCurrentElement(cfg)
+                    library.current_element_open = cfg 
+                end
+            end
+
+            function cfg.set(color, alpha)
+                if color then 
+                    h, s, v = color:ToHSV()
+                end 
+                if alpha then 
+                    a = alpha
+                end 
+                updateColor()
+            end
+
+            cfg.set(cfg.color, cfg.alpha)
+            library.config_flags[cfg.flag] = cfg.set
+
+            return setmetatable(cfg, library)
+        end
     
         
     -- Library element functions
