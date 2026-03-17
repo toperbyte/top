@@ -1,4 +1,4 @@
--- Variables 
+-- Variables got fix
     local uis = game:GetService("UserInputService") 
     local players = game:GetService("Players") 
     local ws = game:GetService("Workspace")
@@ -65,7 +65,7 @@
     end 
 
     getgenv().library = {
-        directory = "obels",
+        directory = "ob",
         folders = {
             "/fonts",
             "/configs",
@@ -170,7 +170,7 @@
 
     -- Font importing system 
         if not isfile(library.directory .. "/fonts/main.ttf") then 
-            writefile(library.directory .. "/fonts/main.ttf", game:HttpGet("https://github.com/i77lhm/storage/raw/refs/heads/main/fonts/fs-tahoma-8px.ttf"))
+            writefile(library.directory .. "/fonts/main.ttf", game:HttpGet("https://github.com/i77lhm/storage/blob/main/fonts/ProggyClean.ttf?raw=true"))
         end
         
         local tahoma = {
@@ -178,7 +178,7 @@
             faces = {
                 {
                     name = "Regular",
-                    weight = 400,
+                    weight = 275,
                     style = "normal",
                     assetId = getcustomasset(library.directory .. "/fonts/main.ttf")
                 }
