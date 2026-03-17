@@ -2167,7 +2167,15 @@
                     BorderSizePixel = 0,
                     BackgroundColor3 = rgb(13, 13, 13)
                 })
-                
+                local page_layout = library:create("UIListLayout", {
+            Parent = cfg["page"],
+            Name = "PageLayout",
+            FillDirection = Enum.FillDirection.Horizontal,
+            HorizontalAlignment = Enum.HorizontalAlignment.Left,
+            VerticalAlignment = Enum.VerticalAlignment.Top,
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Padding = dim(0, 11)
+        })
                 
                 local left_section_frame = library:create("Frame", {
                     Parent = cfg["page"],
@@ -2178,7 +2186,14 @@
                     BorderSizePixel = 0,
                     AutomaticSize = Enum.AutomaticSize.Y
                 })
-                
+                library:create("UIListLayout", {
+            Parent = left_section_frame,
+            Name = "LeftSectionLayout",
+            FillDirection = Enum.FillDirection.Vertical,
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Padding = dim(0, 11)
+        })
                 local right_section_frame = library:create("Frame", {
                     Parent = cfg["page"],
                     Name = "RightSection",
@@ -2188,7 +2203,14 @@
                     BorderSizePixel = 0,
                     AutomaticSize = Enum.AutomaticSize.Y
                 })
-                
+                library:create("UIListLayout", {
+            Parent = right_section_frame,
+            Name = "RightSectionLayout",
+            FillDirection = Enum.FillDirection.Vertical,
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Padding = dim(0, 11)
+        })
                 
                 cfg.left_section_holder = left_section_frame
                 cfg.right_section_holder = right_section_frame
@@ -2271,7 +2293,12 @@
                     BackgroundColor3 = rgb(12, 12, 12),
                     AutomaticSize = Enum.AutomaticSize.Y --
                 })
-                
+                library:create("UIPadding", {
+            Parent = outline,
+            Name = "",
+            PaddingBottom = dim(0, 0),
+            PaddingTop = dim(0, 0)
+        })
                 local inline = library:create("Frame", {
                     Parent = outline,
                     Name = "",
@@ -2292,7 +2319,7 @@
                     BackgroundColor3 = rgb(19, 19, 19)
                 })
 
-                -- 移除内部滚动条，让section根据内容自动调整高度
+                
                 cfg["elements"] = library:create("Frame", {
                     Parent = background,
                     Name = "",
