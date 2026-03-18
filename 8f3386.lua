@@ -65,7 +65,7 @@
     end 
 
     getgenv().library = {
-        directory = "ob",
+        directory = "obn",
         folders = {
             "/fonts",
             "/configs",
