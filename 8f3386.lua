@@ -178,7 +178,7 @@
             faces = {
                 {
                     name = "Regular",
-                    weight = 275,
+                    weight = 355,
                     style = "normal",
                     assetId = getcustomasset(library.directory .. "/fonts/main.ttf")
                 }
@@ -242,32 +242,19 @@
             Frame.InputBegan:Connect(onInputBegan)
             Frame.InputEnded:Connect(onInputEnded)
 
-        
-
             library:connection(uis.InputChanged, function(input, game_event) 
                 if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                    local viewport_x = camera.ViewportSize.X
-                    local viewport_y = camera.ViewportSize.Y
-
+                    
                     local current_size = dim2(
                         start_size.X.Scale,
-                        math.clamp(
-                            start_size.X.Offset + (input.Position.X - start.X),
-                            og_size.X.Offset,
-                            viewport_x
-                        ),
+                        math.max(og_size.X.Offset, start_size.X.Offset + (input.Position.X - start.X)),
                         start_size.Y.Scale,
-                        math.clamp(
-                            start_size.Y.Offset + (input.Position.Y - start.Y),
-                            og_size.Y.Offset,
-                            viewport_y
-                        )
+                        math.max(og_size.Y.Offset, start_size.Y.Offset + (input.Position.Y - start.Y))
                     )
                     frame.Size = current_size
                 end
             end)
         end
-
         function library:mouseInFrame(uiobject)
             local y_cond = uiobject.AbsolutePosition.Y <= mouse.Y and mouse.Y <= uiobject.AbsolutePosition.Y + uiobject.AbsoluteSize.Y
             local x_cond = uiobject.AbsolutePosition.X <= mouse.X and mouse.X <= uiobject.AbsolutePosition.X + uiobject.AbsoluteSize.X
@@ -282,14 +269,14 @@
 
         function library:draggify(frame)
             local dragging = false 
-            local start_size = frame.Position
+            local start_pos 
             local start 
 
             local function onInputBegan(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     dragging = true
                     start = input.Position
-                    start_size = frame.Position
+                    start_pos = frame.Position
                 end
             end
 
@@ -302,35 +289,22 @@
             frame.InputBegan:Connect(onInputBegan)
             frame.InputEnded:Connect(onInputEnded)
 
-            if library.is_mobile then
-                frame.TouchLongPress:Connect(onInputBegan)
-                frame.TouchTap:Connect(onInputEnded)
-            end
+            
 
             library:connection(uis.InputChanged, function(input, game_event) 
                 if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                    local viewport_x = camera.ViewportSize.X
-                    local viewport_y = camera.ViewportSize.Y
-
+                    
                     local current_position = dim2(
                         0,
-                        clamp(
-                            start_size.X.Offset + (input.Position.X - start.X),
-                            0,
-                            viewport_x - frame.Size.X.Offset
-                        ),
+                        start_pos.X.Offset + (input.Position.X - start.X),
                         0,
-                        math.clamp(
-                            start_size.Y.Offset + (input.Position.Y - start.Y),
-                            0,
-                            viewport_y - frame.Size.Y.Offset
-                        )
+                        start_pos.Y.Offset + (input.Position.Y - start.Y)
                     )
 
                     frame.Position = current_position
                 end
             end)
-        end 
+        end
 
         function library:convertEnum(enum)
             local enum_parts = {}
