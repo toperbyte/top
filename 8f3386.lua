@@ -2089,7 +2089,7 @@
 
             return setmetatable(cfg, library)
         end 
-
+        --[[
         function library:tab(properties)
             local cfg = {
                 name = properties.name or "visuals", 
@@ -2378,7 +2378,324 @@
             return setmetatable(cfg, library)
         end 
 
-        
+        --]]
+        function library:tab(properties)
+            local cfg = {
+                name = properties.name or "visuals", 
+            } 
+
+            -- tab button
+                local outline = library:create("TextButton", {
+                    Parent = self.tab_holder,
+                    Name = "",
+                    FontFace = library.font,
+                    TextColor3 = rgb(0, 0, 0),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Text = "",
+                    AutoButtonColor = false,
+                    Size = dim2(0, 0, 0, 30),
+                    BorderSizePixel = 0,
+                    TextSize = 14,
+                    BackgroundColor3 = rgb(0, 0, 0)
+                })
+                
+                local inline = library:create("Frame", {
+                    Parent = outline,
+                    Name = "",
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(41, 41, 41)
+                })
+                
+                local background = library:create("Frame", {
+                    Parent = inline,
+                    Name = "",
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(255, 255, 255)
+                })
+                
+                local gradient = library:create("UIGradient", {
+                    Parent = background,
+                    Name = "",
+                    Rotation = 90,
+                    Color = rgbseq{
+                        rgbkey(0, rgb(41, 41, 41)), 
+                        rgbkey(1, rgb(16, 16, 16))
+                    }
+                })
+                
+                local text = library:create("TextLabel", {
+                    Parent = background,
+                    Name = "",
+                    FontFace = library.font,
+                    TextColor3 = rgb(140, 140, 140),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Text = cfg.name,
+                    BackgroundTransparency = 1,
+                    Position = dim2(0, 0, 0, -1),
+                    Size = dim2(1, 0, 1, 0),
+                    BorderSizePixel = 0,
+                    TextSize = 12,
+                    BackgroundColor3 = rgb(255, 255, 255)
+                }); library:applyTheme(text, "accent", "TextColor3")
+            -- 
+
+            -- page 
+                cfg["page"] = library:create("Frame", {
+                    Parent = self.page_holder,
+                    Name = "",
+                    Visible = false, 
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(13, 13, 13)
+                })
+                
+                local main_scroll = library:create("ScrollingFrame", {
+                    Parent = cfg["page"],
+                    Name = "MainScroll",
+                    BackgroundTransparency = 1,
+                    BorderSizePixel = 0,
+                    Size = dim2(1, 0, 1, 0),
+                    Position = dim2(0, 0, 0, 0),
+                    ScrollBarThickness = 4,
+                    ScrollBarImageColor3 = rgb(65, 65, 65),
+                    AutomaticCanvasSize = Enum.AutomaticSize.Y,
+                    CanvasSize = dim2(0, 0, 0, 0),
+                    ZIndex = 5
+                })
+                
+                local content_container = library:create("Frame", {
+                    Parent = main_scroll,
+                    Name = "ContentContainer",
+                    BackgroundTransparency = 1,
+                    BorderSizePixel = 0,
+                    Size = dim2(1, -11, 0, 0),
+                    Position = dim2(0, 0, 0, 0),
+                    AutomaticSize = Enum.AutomaticSize.Y
+                })
+                
+                library:create("UIPadding", {
+                    Parent = content_container,
+                    Name = "",
+                    PaddingTop = dim(0, 11),
+                    PaddingBottom = dim(0, 11),
+                    PaddingLeft = dim(0, 11)
+                })
+                
+                local horizontal_layout = library:create("UIListLayout", {
+                    Parent = content_container,
+                    Name = "HorizontalLayout",
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    HorizontalAlignment = Enum.HorizontalAlignment.Left,
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    Padding = dim(0, 11)
+                })
+                
+                local left_section_frame = library:create("Frame", {
+                    Parent = content_container,
+                    Name = "LeftSection",
+                    Size = dim2(0.5, -6, 0, 0),
+                    BackgroundColor3 = rgb(13, 13, 13),
+                    BorderSizePixel = 0,
+                    BackgroundTransparency = 1,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    LayoutOrder = 1
+                })
+                
+                local left_layout = library:create("UIListLayout", {
+                    Parent = left_section_frame,
+                    Name = "LeftLayout",
+                    FillDirection = Enum.FillDirection.Vertical,
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    Padding = dim(0, 11)
+                })
+                
+                local right_section_frame = library:create("Frame", {
+                    Parent = content_container,
+                    Name = "RightSection",
+                    Size = dim2(0.5, -6, 0, 0),
+                    BackgroundColor3 = rgb(13, 13, 13),
+                    BorderSizePixel = 0,
+                    BackgroundTransparency = 1,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    LayoutOrder = 2
+                })
+                
+                local right_layout = library:create("UIListLayout", {
+                    Parent = right_section_frame,
+                    Name = "RightLayout",
+                    FillDirection = Enum.FillDirection.Vertical,
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    Padding = dim(0, 11)
+                })
+                
+                cfg.left_section_holder = left_section_frame
+                cfg.right_section_holder = right_section_frame
+                
+                horizontal_layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                    main_scroll.CanvasSize = dim2(0, 0, 0, content_container.AbsoluteSize.Y + 22)
+                end)
+            -- 
+
+            function cfg.open_tab() 
+                library:closeCurrentElement() 
+
+                if self.selected_tab then 
+                    self.selected_tab[1].TextColor3 = rgb(160,160,160)
+                    self.selected_tab[2].Visible = false 
+                    self.selected_tab[3].Color = rgbseq{
+                        rgbkey(0, rgb(41, 41, 41)),
+                        rgbkey(1, rgb(16, 16, 16))
+                    }
+
+                    self.selected_tab = nil 
+                end 
+
+                text.TextColor3 = themes.preset.accent
+                cfg["page"].Visible = true 
+                gradient.Color = rgbseq{
+                    rgbkey(0, rgb(41, 41, 41)),
+                    rgbkey(1, rgb(25, 25, 25))
+                }
+                self.selected_tab = {text, cfg["page"], gradient}
+            end 
+
+            outline.MouseButton1Click:Connect(function()
+                cfg.open_tab()
+            end)
+
+            if library.is_mobile then
+                outline.TouchTap:Connect(function()
+                    cfg.open_tab()
+                end)
+            end
+
+            if not self.selected_tab then 
+                cfg.open_tab(true) 
+            end 
+
+            return setmetatable(cfg, library)    
+        end 
+
+        function library:left()
+            return setmetatable({section_holder = self.left_section_holder}, library)
+        end
+
+        function library:right()
+            return setmetatable({section_holder = self.right_section_holder}, library)
+        end
+
+        function library:section(properties)
+            local cfg = {
+                name = properties.name or properties.Name or "section",
+            }   
+
+            local function calculateTotalHeight()
+                local total_height = 16
+                if cfg.elements then
+                    for _, child in ipairs(cfg.elements:GetChildren()) do
+                        if child:IsA("GuiObject") then
+                            total_height = total_height + child.AbsoluteSize.Y + 10
+                        end
+                    end
+                end
+                return total_height
+            end
+
+            -- Instances
+                local outline = library:create("Frame", {
+                    Parent = self.section_holder,
+                    Name = "",
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, 0, 0, 0),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(12, 12, 12),
+                    AutomaticSize = Enum.AutomaticSize.Y
+                })
+                
+                local inline = library:create("Frame", {
+                    Parent = outline,
+                    Name = "",
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(45, 45, 45)
+                })
+                
+                local background = library:create("Frame", {
+                    Parent = inline,
+                    Name = "",
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(19, 19, 19)
+                })
+
+                cfg["elements"] = library:create("Frame", {
+                    Parent = background,
+                    Name = "",
+                    Position = dim2(0, 8, 0, 16),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -16, 0, 0),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(255, 255, 255),
+                    BackgroundTransparency = 1,
+                    AutomaticSize = Enum.AutomaticSize.Y
+                })
+                
+                local UIListLayout = library:create("UIListLayout", {
+                    Parent = cfg["elements"],
+                    Name = "",
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                    Padding = dim(0, 3)
+                })
+                
+                local section_title = library:create("TextLabel", {
+                    Parent = outline,
+                    Name = "",
+                    FontFace = library.font,
+                    TextColor3 = rgb(205, 205, 205),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Text = cfg.name,
+                    AutomaticSize = Enum.AutomaticSize.XY,
+                    AnchorPoint = vec2(0, 0.5),
+                    Position = dim2(0, 14, 0, 3),
+                    BackgroundTransparency = 1,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    BorderSizePixel = 0,
+                    ZIndex = 2,
+                    TextSize = 12,
+                    BackgroundColor3 = rgb(19, 19, 19)
+                })
+
+                local section_filler = library:create("Frame", {
+                    Parent = outline,
+                    Name = "",
+                    AnchorPoint = vec2(0, 0.5),
+                    Position = dim2(0, 13, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(0, section_title.TextBounds.X, 0, 3),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(19, 19, 19)
+                })
+            -- 
+
+            UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                section_filler.Size = dim2(0, section_title.TextBounds.X, 0, 3)
+            end)
+
+            return setmetatable(cfg, library)
+        end
         function library:addToggle(options) 
             local cfg = {
                 enabled = options.enabled or nil,
