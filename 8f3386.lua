@@ -3959,7 +3959,7 @@
 
             return setmetatable(cfg, library)
         end
-
+--[[
         function library:addList(options)
             local cfg = {
                 callback = options and options.callback or function() end, 
@@ -4218,7 +4218,288 @@
 
             return setmetatable(cfg, library)
         end
+--]]
+        function library:addList(options)
+            local cfg = {
+                callback = options and options.callback or function() end, 
+                name = options.name or nil, 
 
+                scale = options.size or 232, 
+                items = options.items or {"1", "2", "3"}, 
+                visible = options.visible or true,
+        
+                option_instances = {}, 
+                current_instance = nil, 
+                flag = options.flag or "flag", 
+        
+            }
+        
+            -- Instances
+                local list_path = library:create("TextLabel", {
+                    Parent = self.elements,
+                    Name = "",
+                    FontFace = library.font,
+                    TextColor3 = rgb(180, 180, 180),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Text = "",
+                    ZIndex = 2,
+                    Size = dim2(1, -8, 0, 12),
+                    BorderSizePixel = 0,
+                    BackgroundTransparency = 1,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    TextYAlignment = Enum.TextYAlignment.Top,
+                    TextSize = 11,
+                    BackgroundColor3 = rgb(255, 255, 255)
+                })
+                
+                local bottom_components = library:create("Frame", {
+                    Parent = list_path,
+                    Name = "",
+                    Position = dim2(0, 15, 0, cfg.name and 11 or 0),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, 2, 0, 0),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(255, 255, 255),
+                    BackgroundTransparency = 1
+                })
+                
+                local list = library:create("TextButton", {
+                    Parent = bottom_components,
+                    Name = "",
+                    AutoButtonColor = false, 
+                    Text = "",
+                    Position = dim2(0, 0, 0, 2),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -27, 0, cfg.scale),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(1, 1, 1)
+                })
+                
+                local inline = library:create("Frame", {
+                    Parent = list,
+                    Name = "",
+                    Position = dim2(0, 0, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -1, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(45, 45, 45)
+                })
+                
+                local background = library:create("Frame", {
+                    Parent = inline,
+                    Name = "",
+                    Position = dim2(0, 1, 0, 1),
+                    BorderColor3 = rgb(0, 0, 0),
+                    Size = dim2(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(25, 25, 25)
+                })         
+
+                local scrollbar_fill = library:create("Frame", {
+                    Parent = background,
+                    Name = "",
+                    Visible = false, 
+                    Size = dim2(0, 5, 1, 0),
+                    Position = dim2(1, -5, 0, 0),
+                    BorderColor3 = rgb(0, 0, 0),
+                    ZIndex = 4,
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = rgb(45, 45, 45)
+                })
+
+                local ScrollingFrame = library:create("ScrollingFrame", {
+                    Parent = background,
+                    Name = "",
+                    Active = true,
+                    AutomaticCanvasSize = Enum.AutomaticSize.Y,
+                    ScrollBarThickness = 4,
+                    BackgroundTransparency = 1,
+                    ScrollBarImageColor3 = rgb(65, 65, 65),
+                    Size = dim2(1, 0, 1, 0),
+                    BackgroundColor3 = rgb(255, 255, 255),
+                    BorderColor3 = rgb(0, 0, 0),
+                    BorderSizePixel = 0,
+                    CanvasSize = dim2(0, 0, 0, 0),
+                    ZIndex = 999,
+                })
+
+                local UIPadding = library:create("UIPadding", {
+                    Parent = ScrollingFrame,
+                    Name = "",
+                    PaddingLeft = dim(0, 5),
+                    PaddingBottom  = dim(0, 5),
+                    PaddingTop  = dim(0, 5),
+                    PaddingRight = dim(0, 5)
+                })
+
+                library:create("UIListLayout", {
+                    Parent = ScrollingFrame,
+                    Name = "",
+                    Padding = dim(0, 5),
+                    FillDirection = Enum.FillDirection.Vertical
+                })
+                
+                if cfg.name then 
+                    local left_components = library:create("Frame", {
+                        Parent = list_path,
+                        Name = "",
+                        BackgroundTransparency = 1,
+                        Position = dim2(0, 16, 0, 1),
+                        BorderColor3 = rgb(0, 0, 0),
+                        Size = dim2(0, 0, 0, 14),
+                        BorderSizePixel = 0,
+                        BackgroundColor3 = rgb(255, 255, 255)
+                    })
+                    
+                    local text = library:create("TextLabel", {
+                        Parent = left_components,
+                        Name = "",
+                        FontFace = library.font,
+                        TextColor3 = rgb(180, 180, 180),
+                        BorderColor3 = rgb(0, 0, 0),
+                        Text = cfg.name,
+                        BackgroundTransparency = 1,
+                        Size = dim2(0, 0, 1, -1),
+                        BorderSizePixel = 0,
+                        AutomaticSize = Enum.AutomaticSize.X,
+                        TextSize = 12,
+                        BackgroundColor3 = rgb(255, 255, 255)
+                    })
+                    
+                    library:create("UIListLayout", {
+                        Parent = left_components,
+                        Name = "",
+                        Padding = dim(0, 5),
+                        FillDirection = Enum.FillDirection.Horizontal
+                    })
+                    
+                    library:create("UIPadding", {
+                        Parent = left_components,
+                        Name = "",
+                        PaddingBottom = dim(0, 6)
+                    })
+                end 
+        
+                local UIPadding = library:create("UIPadding", {
+                    Parent = list,
+                    Name = "",
+                    PaddingLeft = dim(0, 1)
+                })
+            --      
+        
+            -- Functions
+                function cfg.render_option(text) 
+                    local button = library:create("TextButton", {
+                        Parent = ScrollingFrame,
+                        Name = "",
+                        FontFace = library.font,
+                        TextColor3 = rgb(180, 180, 180),
+                        BorderColor3 = rgb(0, 0, 0),
+                        Text = text,
+                        Size = dim2(1, 0, 0, 0),
+                        BackgroundTransparency = 1,
+                        Position = dim2(0, 7, 0, -1),
+                        BorderSizePixel = 0,
+                        TextSize = 12,
+                        AutomaticSize = Enum.AutomaticSize.Y,
+                        TextXAlignment = Enum.TextXAlignment.Left, 
+                        TextTruncate = Enum.TextTruncate.AtEnd,
+                        BackgroundColor3 = rgb(255, 255, 255)
+                    })       
+                    
+                    local function onListOptionClick()
+                        if cfg.current_instance and cfg.current_instance ~= button then 
+                            cfg.current_instance.TextColor3 = rgb(180, 180, 180) 
+                        end 
+        
+                        cfg.current_instance = button 
+                        button.TextColor3 = themes.preset.accent 
+        
+                        flags[cfg.flag] = button.Text
+                        cfg.callback(button.Text)
+                    end
+
+                    button.MouseButton1Click:Connect(onListOptionClick)
+                    
+                    if library.is_mobile then
+                        button.TouchTap:Connect(onListOptionClick)
+                    end
+            
+                    return button 
+                end 
+            
+                function cfg.refresh_options(options)
+                    for _, v in next, cfg.option_instances do 
+                        v:Destroy() 
+                    end 
+                    cfg.option_instances = {}
+            
+                    for _, option in next, options do 
+                        local button = cfg.render_option(option) 
+                        insert(cfg.option_instances, button)
+                    end 
+                end
+
+                function cfg:addItem(option)
+                    if not table.find(cfg.items, option) then
+                        insert(cfg.items, option)
+                        local button = cfg.render_option(option)
+                        insert(cfg.option_instances, button)
+                    end
+                end
+
+                function cfg:removeItem(option)
+                    local index = table.find(cfg.items, option)
+                    if index then
+                        table.remove(cfg.items, index)
+                        for i, v in next, cfg.option_instances do
+                            if v.Text == option then
+                                v:Destroy()
+                                table.remove(cfg.option_instances, i)
+                                break
+                            end
+                        end
+                    end
+                end
+                
+                function cfg.filter_options(text)
+                    for _, v in next, cfg.option_instances do 
+                        if string.find(v.Text:lower(), text:lower()) then 
+                            v.Visible = true 
+                        else 
+                            v.Visible = false
+                        end
+                    end
+                end
+        
+                function cfg.set(value)
+                    for _, button in next, cfg.option_instances do 
+                        if button.Text == value then 
+                            button.TextColor3 = themes.preset.accent 
+                            cfg.current_instance = button
+                        else 
+                            button.TextColor3 = rgb(180, 180, 180) 
+                        end 
+                    end 
+        
+                    flags[cfg.flag] = value
+                    cfg.callback(value)
+                end 
+        
+                cfg.refresh_options(cfg.items) 
+            -- 
+                
+            -- Connections 
+                ScrollingFrame:GetPropertyChangedSignal("AbsoluteCanvasSize"):Connect(function()
+                    scrollbar_fill.Visible = ScrollingFrame.AbsoluteCanvasSize.Y > background.AbsoluteSize.Y
+                end)
+            -- 
+
+            library.config_flags[cfg.flag] = cfg.set
+
+            return setmetatable(cfg, library)
+        end
         function library:addButton(options)
             local cfg = {
                 callback = options.callback or function() end, 
