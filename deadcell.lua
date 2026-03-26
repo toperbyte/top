@@ -1129,7 +1129,7 @@ function library:new_window(cfg)
                 return label_methods
             end
             
-            function section_tbl:new_button(bcfg)
+            function section_tbl:add_button(bcfg)
                 local name = bcfg.name or "Button"
                 local callback = bcfg.callback or function() end
 
