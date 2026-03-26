@@ -1128,10 +1128,55 @@ function library:new_window(cfg)
 
                 return label_methods
             end
+            
+            function section_tbl:new_button(bcfg)
+                local name = bcfg.name or "Button"
+                local callback = bcfg.callback or function() end
+
+                local button_holder = create("TextButton", {
+                    Parent = content,
+                    BackgroundColor3 = library.theme.ObjectBackground,
+                    Size = UDim2.new(1, 0, 0, 20),
+                    Text = "",
+                    ZIndex = 15
+                })
+                outline(button_holder, library.theme.SectionInnerBorder, 1)
+                addGradient(button_holder)
+
+                local button_text = create("TextLabel", {
+                    Parent = button_holder,
+                    Text = name,
+                    TextColor3 = library.theme.Text,
+                    TextSize = 13,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 1, 0),
+                    ZIndex = 16
+                })
+
+                button_holder.MouseButton1Down:Connect(function()
+                    button_text.TextColor3 = library.theme.Accent
+                end)
+
+                button_holder.MouseButton1Up:Connect(function()
+                    button_text.TextColor3 = library.theme.Text
+                end)
+
+                button_holder.MouseButton1Click:Connect(function()
+                    callback()
+                end)
+
+                return {
+                    set = function(new_name) button_text.Text = new_name end
+                }
+            end
+
             return section_tbl
         end
+
         return page_tbl
     end
+
     return window_tbl
 end
+
 return library
