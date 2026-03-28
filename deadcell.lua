@@ -125,64 +125,59 @@ function library:setupThemeTracking()
     end
 end
 
-function library:new_watermark(cfg)
-    local wm_text = cfg.text or "Zephyrus UI"
-    local wm_enabled = cfg.enabled or true
-    local wm_frame = nil
+function library:create_watermark(cfg)
+    local watermark_tbl = {}
     
-    local function createWatermark()
-        local screen = create("ScreenGui", {Name = "watermark", Parent = guiRoot, ZIndexBehavior = 1})
-        local wm = create("Frame", {Parent = screen, BackgroundColor3 = self.theme.WindowOutlineBackground, Size = UDim2.new(0, textLength(wm_text, 12).X + 20, 0, 28), Position = UDim2.new(0, 10, 1, -38), ZIndex = 1000})
-        outline(wm, Color3.fromRGB(0,0,0), 2)
-        outline(wm, self.theme.WindowBorder, 1)
-        self:applyTheme(wm, "WindowOutlineBackground", "BackgroundColor3")
-        
-        local wmInline = create("Frame", {Parent = wm, BackgroundColor3 = self.theme.WindowInlineBackground, Size = UDim2.new(1, -6, 1, -6), Position = UDim2.new(0, 3, 0, 3), ZIndex = 1001})
-        self:applyTheme(wmInline, "WindowInlineBackground", "BackgroundColor3")
-        
-        local wmAccent = create("Frame", {Parent = wmInline, BackgroundColor3 = self.theme.Accent, Size = UDim2.new(1, -2, 0, 2), Position = UDim2.new(0, 1, 0, 1), ZIndex = 1002})
-        addGradient(wmAccent)
-        self:applyTheme(wmAccent, "Accent", "BackgroundColor3")
-        
-        local text = create("TextLabel", {Parent = wmInline, Text = wm_text, TextColor3 = self.theme.Text, TextSize = 12, BackgroundTransparency = 1, Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), ZIndex = 1003})
-        self:applyTheme(text, "Text", "TextColor3")
-        
-        return wm
+    local screenGui = create("ScreenGui", {
+        Name = "ZephyrusWatermark",
+        Parent = guiRoot,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    })
+    
+    local watermarkFrame = create("Frame", {
+        Parent = screenGui,
+        BackgroundColor3 = library.theme.WindowOutlineBackground,
+        BackgroundTransparency = 0.25,
+        Size = UDim2.new(0, 280, 0, 36),
+        Position = UDim2.new(0, 12, 1, -42),
+        ZIndex = 1000,
+        Visible = true
+    })
+    
+    outline(watermarkFrame, Color3.fromRGB(0,0,0), 2)
+    outline(watermarkFrame, library.theme.WindowBorder, 1)
+    
+    local accentBar = create("Frame", {
+        Parent = watermarkFrame,
+        BackgroundColor3 = library.theme.Accent,
+        Size = UDim2.new(0, 3, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        ZIndex = 1001
+    })
+    
+    local watermarkText = create("TextLabel", {
+        Parent = watermarkFrame,
+        Text = cfg.text or "constant.cc | 01:03AM | uid = 05 | 56 fps | 96 ms\n0x00000000",
+        TextColor3 = library.theme.Text,
+        TextSize = 11,
+        FontFace = customFont,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 10, 0, 6),
+        Size = UDim2.new(1, -15, 1, 0),
+        TextXAlignment = 0,
+        TextYAlignment = 0,
+        ZIndex = 1002
+    })
+    
+    function watermark_tbl:update(text)
+        watermarkText.Text = text
     end
     
-    local function updateWatermark()
-        if wm_frame then
-            local oldPos = wm_frame.Position
-            wm_frame:Destroy()
-            wm_frame = createWatermark()
-            wm_frame.Position = oldPos
-        end
+    function watermark_tbl:set_visible(state)
+        watermarkFrame.Visible = state
     end
     
-    local function setText(newText)
-        wm_text = newText
-        updateWatermark()
-        if cfg.callback then cfg.callback(newText) end
-    end
-    
-    local function setEnabled(state)
-        wm_enabled = state
-        if state then
-            if not wm_frame then wm_frame = createWatermark() end
-        else
-            if wm_frame then wm_frame:Destroy() wm_frame = nil end
-        end
-        if cfg.callback then cfg.callback(state) end
-    end
-    
-    if wm_enabled then wm_frame = createWatermark() end
-    
-    return {
-        setText = setText,
-        setEnabled = setEnabled,
-        getEnabled = function() return wm_enabled end,
-        getText = function() return wm_text end
-    }
+    return watermark_tbl
 end
 
 function library:create_ui_settings(section)
