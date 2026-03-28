@@ -125,61 +125,6 @@ function library:setupThemeTracking()
     end
 end
 
-function library:create_watermark(cfg)
-    local watermark_tbl = {}
-    
-    local screenGui = create("ScreenGui", {
-        Name = "ZephyrusWatermark",
-        Parent = guiRoot,
-        ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    })
-    
-    local watermarkFrame = create("Frame", {
-        Parent = screenGui,
-        BackgroundColor3 = library.theme.WindowOutlineBackground,
-        BackgroundTransparency = 0.25,
-        Size = UDim2.new(0, 280, 0, 36),
-        Position = UDim2.new(0, 12, 1, -42),
-        ZIndex = 1000,
-        Visible = true
-    })
-    
-    outline(watermarkFrame, Color3.fromRGB(0,0,0), 2)
-    outline(watermarkFrame, library.theme.WindowBorder, 1)
-    
-    local accentBar = create("Frame", {
-        Parent = watermarkFrame,
-        BackgroundColor3 = library.theme.Accent,
-        Size = UDim2.new(0, 3, 1, 0),
-        Position = UDim2.new(0, 0, 0, 0),
-        ZIndex = 1001
-    })
-    
-    local watermarkText = create("TextLabel", {
-        Parent = watermarkFrame,
-        Text = cfg.text or "constant.cc | 01:03AM | uid = 05 | 56 fps | 96 ms\n0x00000000",
-        TextColor3 = library.theme.Text,
-        TextSize = 11,
-        FontFace = customFont,
-        BackgroundTransparency = 1,
-        Position = UDim2.new(0, 10, 0, 6),
-        Size = UDim2.new(1, -15, 1, 0),
-        TextXAlignment = 0,
-        TextYAlignment = 0,
-        ZIndex = 1002
-    })
-    
-    function watermark_tbl:update(text)
-        watermarkText.Text = text
-    end
-    
-    function watermark_tbl:set_visible(state)
-        watermarkFrame.Visible = state
-    end
-    
-    return watermark_tbl
-end
-
 function library:create_ui_settings(section)
     local accentColor = section:new_toggle({
         name = "Accent Color",
@@ -286,7 +231,60 @@ local function nextFlag()
     totalUnnamedFlags = totalUnnamedFlags + 1
     return "flag_" .. tostring(totalUnnamedFlags)
 end
-
+function library:create_watermark(cfg)
+    local watermark_tbl = {}
+    
+    local screenGui = create("ScreenGui", {
+        Name = "ZephyrusWatermark",
+        Parent = guiRoot,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    })
+    
+    local watermarkFrame = create("Frame", {
+        Parent = screenGui,
+        BackgroundColor3 = library.theme.WindowOutlineBackground,
+        BackgroundTransparency = 0.25,
+        Size = UDim2.new(0, 280, 0, 36),
+        Position = UDim2.new(0, 12, 1, -42),
+        ZIndex = 1000,
+        Visible = true
+    })
+    
+    outline(watermarkFrame, Color3.fromRGB(0,0,0), 2)
+    outline(watermarkFrame, library.theme.WindowBorder, 1)
+    
+    local accentBar = create("Frame", {
+        Parent = watermarkFrame,
+        BackgroundColor3 = library.theme.Accent,
+        Size = UDim2.new(0, 3, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        ZIndex = 1001
+    })
+    
+    local watermarkText = create("TextLabel", {
+        Parent = watermarkFrame,
+        Text = cfg.text or "constant.cc | 01:03AM | uid = 05 | 56 fps | 96 ms\n0x00000000",
+        TextColor3 = library.theme.Text,
+        TextSize = 11,
+        FontFace = customFont,
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 10, 0, 6),
+        Size = UDim2.new(1, -15, 1, 0),
+        TextXAlignment = 0,
+        TextYAlignment = 0,
+        ZIndex = 1002
+    })
+    
+    function watermark_tbl:update(text)
+        watermarkText.Text = text
+    end
+    
+    function watermark_tbl:set_visible(state)
+        watermarkFrame.Visible = state
+    end
+    
+    return watermark_tbl
+end
 function library:new_window(cfg)
     local window_tbl = {pages = {}, page_buttons = {}, page_accents = {}}
     local sizeX, sizeY = cfg.size.X or 500, cfg.size.Y or 400
