@@ -1171,5 +1171,104 @@ function library:new_window(cfg)
 
     return window_tbl
 end
+local http = game:GetService("HttpService")
 
+function library:get_config_folder()
+    return self.folder .. "/configs"
+end
+
+function library:get_config_path(name)
+    return string.format("%s/%s.json", self:get_config_folder(), name)
+end
+
+function library:list_configs()
+    local t = {}
+    for _, f in pairs(listfiles(self:get_config_folder())) do
+        local n = f:match("([^/\\]+)%.json$")
+        if n then table.insert(t, n) end
+    end
+    table.sort(t)
+    return t
+end
+
+function library:save_config(name)
+    if not name or name == "" then return end
+    local data = {flags = self.flags, theme = {}}
+    for k, v in pairs(self.theme) do
+        data.theme[k] = {v.R, v.G, v.B}
+    end
+    writefile(self:get_config_path(name), http:JSONEncode(data))
+end
+
+function library:load_config(name)
+    local path = self:get_config_path(name)
+    if not isfile(path) then return end
+    local data = http:JSONDecode(readfile(path))
+    for k, v in pairs(data.flags or {}) do
+        self.flags[k] = v
+    end
+    for k, v in pairs(data.theme or {}) do
+        self:updateTheme(k, Color3.new(v[1], v[2], v[3]))
+    end
+end
+
+function library:delete_config(name)
+    local path = self:get_config_path(name)
+    if isfile(path) then delfile(path) end
+end
+
+function library:create_config_ui(section)
+    local current = "default"
+
+    local name_box = section:new_textbox({
+        name = "Config Name",
+        default = current,
+        callback = function(v)
+            current = v
+        end
+    })
+
+    local list = section:new_listbox({
+        name = "Configs",
+        options = self:list_configs(),
+        height = 120,
+        callback = function(v)
+            current = v
+            name_box:set(v)
+        end
+    })
+
+    section:add_button({
+        name = "Save",
+        callback = function()
+            self:save_config(current)
+            list:add(current)
+        end
+    })
+
+    section:add_button({
+        name = "Load",
+        callback = function()
+            self:load_config(current)
+        end
+    })
+
+    section:add_button({
+        name = "Create",
+        callback = function()
+            self:save_config(current)
+            list:add(current)
+        end
+    })
+
+    section:add_button({
+        name = "Delete",
+        callback = function()
+            self:delete_config(current)
+            list:remove(current)
+            current = ""
+            name_box:set("")
+        end
+    })
+end
 return library
