@@ -2367,7 +2367,7 @@ function Library:Dropdown(properties)
             Text = text;
             Parent = Items.DropdownHolder;
             Name = "\0";
-            ZIndex = 999;
+            ZIndex = 9e9;
             Size = dim2(1, 0, 0, 0);
             BackgroundTransparency = 1;
             TextXAlignment = Enum.TextXAlignment.Left;
