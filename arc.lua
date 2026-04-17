@@ -2320,6 +2320,7 @@ function Library:Dropdown(properties)
             Position = dim2(0.30000001192092896, 0, 0.5, 0);
             BorderColor3 = rgb(0, 0, 0);
             BorderSizePixel = 0;
+            ZIndex = 9e9;
             AutomaticSize = Enum.AutomaticSize.Y;
             BackgroundColor3 = themes.preset.outline
         })
@@ -2343,6 +2344,7 @@ function Library:Dropdown(properties)
             BorderColor3 = rgb(0, 0, 0);
             Size = dim2(1, -2, 1, -2);
             BorderSizePixel = 0;
+            ZIndex = 9e9;
             BackgroundColor3 = rgb(255, 255, 255)
         })
         
