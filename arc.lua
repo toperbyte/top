@@ -46,7 +46,7 @@ local themes = {
         inline = rgb(50, 50, 50);
         gradient = rgb(40, 40, 40);
         outline = rgb(20, 20, 20);
-        accent = rgb(50, 119, 186);
+        accent = rgb(125, 145, 186);
         background = rgb(30, 30, 30);
         text_color = rgb(239, 239, 239);
         text_outline = rgb(0, 0, 0);
@@ -2084,5 +2084,729 @@ function Notifications:Create(properties)
         Items.Outline:Destroy() 
     end)
 end
+function Library:Button(properties) 
+    local Cfg = {
+        Name = properties.Name or "Button",
+        Callback = properties.Callback or function() end,
+        Items = {};
+    }
+    
+    local Items = Cfg.Items; do 
+        Items.Button = Library:Create("TextButton", {
+            FontFace = Library.Font;
+            TextColor3 = rgb(0, 0, 0);
+            BorderColor3 = rgb(0, 0, 0);
+            Text = "";
+            Parent = self.Items.GroupElements or self.Items.Elements;
+            Name = "\0";
+            BackgroundTransparency = 1;
+            Size = dim2(1, 0, 0, 0);
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.Y;
+            TextSize = 14;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+        
+        Items.Outline = Library:Create("Frame", {
+            Name = "\0";
+            Parent = Items.Button;
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, 0, 0, 18);
+            BorderSizePixel = 0;
+            BackgroundColor3 = themes.preset.outline
+        })
+        Library:Themify(Items.Outline, "outline", "BackgroundColor3")
+        
+        Items.Inline = Library:Create("Frame", {
+            Parent = Items.Outline;
+            Name = "\0";
+            Position = dim2(0, 1, 0, 1);
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, -2, 1, -2);
+            BorderSizePixel = 0;
+            BackgroundColor3 = themes.preset.inline
+        })
+        Library:Themify(Items.Inline, "inline", "BackgroundColor3")
+        
+        Items.Background = Library:Create("Frame", {
+            Parent = Items.Inline;
+            Name = "\0";
+            Position = dim2(0, 1, 0, 1);
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, -2, 1, -2);
+            BorderSizePixel = 0;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+        
+        local gradient = Library:Create("UIGradient", {
+            Rotation = 90;
+            Parent = Items.Background;
+            Color = rgbseq{rgbkey(0, themes.preset.inline), rgbkey(1, themes.preset.gradient)}
+        })
+        Library:SaveGradient(gradient, "Selected")
+        
+        Items.Name = Library:Create("TextLabel", {
+            FontFace = Library.Font;
+            TextColor3 = themes.preset.text_color;
+            BorderColor3 = rgb(0, 0, 0);
+            Text = Cfg.Name;
+            Parent = Items.Background;
+            Name = "\0";
+            Size = dim2(1, 0, 1, 0);
+            BackgroundTransparency = 1;
+            Position = dim2(0, 3, 0, 0);
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.XY;
+            TextSize = 12;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+        
+        Library:Create("UIStroke", {
+            Parent = Items.Name;
+            LineJoinMode = Enum.LineJoinMode.Miter
+        })
+    end 
 
+    Items.Button.MouseButton1Click:Connect(function()
+        Items.Name.TextColor3 = rgb(255, 255, 255)
+        Library:Tween(Items.Name, {TextColor3 = themes.preset.text_color})
+        Cfg.Callback()
+    end)
+    
+    return setmetatable(Cfg, Library)
+end
+
+function Library:Dropdown(properties) 
+    local Cfg = {
+        Name = properties.Name or nil;
+        Flag = properties.Flag or properties.Name or "Dropdown";
+        Options = properties.Options or {""};
+        Callback = properties.Callback or function() end;
+        Multi = properties.Multi or false;
+        Open = false;
+        OptionInstances = {};
+        MultiItems = {};
+        Items = {};
+        Tweening = false;
+        Ignore = properties.Ignore or false;
+    }   
+
+    Cfg.Default = properties.Default or (Cfg.Multi and {Cfg.Items[1]}) or Cfg.Items[1] or "None"
+    Flags[Cfg.Flag] = Cfg.Default
+    
+    local Items = Cfg.Items; do 
+        Items.Dropdown = Library:Create("TextButton", {
+            FontFace = Library.Font;
+            TextColor3 = rgb(0, 0, 0);
+            BorderColor3 = rgb(0, 0, 0);
+            Text = "";
+            Parent = self.Items.GroupElements or self.Items.Elements;
+            BackgroundTransparency = 1;
+            Name = "\0";
+            Size = dim2(1, 0, 0, 32);
+            BorderSizePixel = 0;
+            TextSize = 14;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+
+        Items.Outline = Library:Create("TextButton", {
+            Parent = Items.Dropdown;
+            AutoButtonColor = false;
+            Text = "";
+            Name = "\0";
+            Position = dim2(0, 0, 0, 14);
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, 0, 0, 18);
+            BorderSizePixel = 0;
+            BackgroundColor3 = themes.preset.outline
+        })
+        Library:Themify(Items.Outline, "outline", "BackgroundColor3")
+
+        Items.Inline = Library:Create("Frame", {
+            Parent = Items.Outline;
+            Name = "\0";
+            Position = dim2(0, 1, 0, 1);
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, -2, 1, -2);
+            BorderSizePixel = 0;
+            BackgroundColor3 = themes.preset.inline
+        })
+        Library:Themify(Items.Inline, "inline", "BackgroundColor3")
+
+        Items.Background = Library:Create("Frame", {
+            Parent = Items.Inline;
+            Name = "\0";
+            Position = dim2(0, 1, 0, 1);
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, -2, 1, -2);
+            BorderSizePixel = 0;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+
+        Items.InnerText = Library:Create("TextLabel", {
+            FontFace = Library.Font;
+            TextColor3 = themes.preset.text_color;
+            BorderColor3 = rgb(0, 0, 0);
+            Text = "Select";
+            Parent = Items.Background;
+            Name = "\0";
+            Size = dim2(0, 0, 1, 0);
+            BackgroundTransparency = 1;
+            Position = dim2(0, 3, 0, 0);
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.XY;
+            TextSize = 12;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+
+        Library:Create("UIStroke", {
+            Parent = Items.InnerText;
+            LineJoinMode = Enum.LineJoinMode.Miter
+        })
+
+        local gradient = Library:Create("UIGradient", {
+            Rotation = 90;
+            Parent = Items.Background;
+            Color = rgbseq{rgbkey(0, themes.preset.inline), rgbkey(1, themes.preset.gradient)}
+        })
+        Library:SaveGradient(gradient, "Selected")
+
+        Items.Icon = Library:Create("TextLabel", {
+            FontFace = Library.Font;
+            TextColor3 = themes.preset.text_color;
+            BorderColor3 = rgb(0, 0, 0);
+            Text = Cfg.Multi and "..." or "-";
+            Parent = Items.Background;
+            Name = "\0";
+            AnchorPoint = vec2(1, 0);
+            Size = dim2(0, 0, 1, 0);
+            BackgroundTransparency = 1;
+            Position = dim2(1, -4, 0, 0);
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.XY;
+            TextSize = 12;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+
+        Library:Create("UIStroke", {
+            Parent = Items.Icon;
+            LineJoinMode = Enum.LineJoinMode.Miter
+        })
+
+        Items.Name = Library:Create("TextLabel", {
+            FontFace = Library.Font;
+            TextColor3 = themes.preset.text_color;
+            BorderColor3 = rgb(0, 0, 0);
+            Text = Cfg.Name;
+            Parent = Items.Dropdown;
+            Name = "\0";
+            BackgroundTransparency = 1;
+            Position = dim2(0, 1, 0, 0);
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.XY;
+            TextSize = 12;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+
+        Library:Create("UIStroke", {
+            Parent = Items.Name;
+            LineJoinMode = Enum.LineJoinMode.Miter
+        })
+        
+        Items.DropdownElements = Library:Create("Frame", {
+            Parent = Library.Other;
+            Size = dim2(0, 0, 0, 0);
+            Name = "\0";
+            Position = dim2(0.30000001192092896, 0, 0.5, 0);
+            BorderColor3 = rgb(0, 0, 0);
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.Y;
+            BackgroundColor3 = themes.preset.outline
+        })
+        Library:Themify(Items.DropdownElements, "outline", "BackgroundColor3")
+        
+        Items.Inline = Library:Create("Frame", {
+            Parent = Items.DropdownElements;
+            Name = "\0";
+            Position = dim2(0, 1, 0, 1);
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, -2, 1, -2);
+            BorderSizePixel = 0;
+            BackgroundColor3 = themes.preset.inline
+        })
+        Library:Themify(Items.Inline, "inline", "BackgroundColor3")
+        
+        Items.DropdownHolder = Library:Create("Frame", {
+            Parent = Items.Inline;
+            Name = "\0";
+            Position = dim2(0, 1, 0, 1);
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, -2, 1, -2);
+            BorderSizePixel = 0;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+        
+        local gradient = Library:Create("UIGradient", {
+            Rotation = 90;
+            Parent = Items.DropdownHolder;
+            Color = rgbseq{rgbkey(0, themes.preset.inline), rgbkey(1, themes.preset.gradient)}
+        })
+        Library:SaveGradient(gradient, "Selected")
+        
+        Library:Create("UIListLayout", {
+            Parent = Items.DropdownHolder;
+            SortOrder = Enum.SortOrder.LayoutOrder
+        })
+    end 
+
+    function Cfg.RenderOption(text)
+        local Button = Library:Create("TextButton", {
+            FontFace = Library.Font;
+            TextColor3 = rgb(179, 179, 179);
+            BorderColor3 = rgb(0, 0, 0);
+            Text = text;
+            Parent = Items.DropdownHolder;
+            Name = "\0";
+            ZIndex = 999;
+            Size = dim2(1, 0, 0, 0);
+            BackgroundTransparency = 1;
+            TextXAlignment = Enum.TextXAlignment.Left;
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.XY;
+            TextSize = 12;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+        
+        Library:Create("UIStroke", {
+            Parent = Button;
+            LineJoinMode = Enum.LineJoinMode.Miter
+        })
+        
+        Library:Create("UIPadding", {
+            PaddingTop = dim(0, 3);
+            PaddingBottom = dim(0, 3);
+            Parent = Button;
+            PaddingRight = dim(0, 3);
+            PaddingLeft = dim(0, 3)
+        })
+        
+        table.insert(Cfg.OptionInstances, Button)
+        return Button
+    end
+    
+    function Cfg.SetVisible(bool)
+        if Library.OpenElement ~= Cfg then 
+            Library:CloseElement()
+        end
+        Items.DropdownElements.Position = dim2(0, Items.Outline.AbsolutePosition.X, 0, Items.Outline.AbsolutePosition.Y + 80)
+        Items.DropdownElements.Size = dim_offset(Items.Outline.AbsoluteSize.X + 1, 0)
+        Items.DropdownElements.Visible = bool 
+        Items.DropdownElements.Parent = bool and Library.Items or Library.Other
+        if not Cfg.Multi then 
+            Items.Icon.Text = bool and "+" or "-"
+        end
+        Library.OpenElement = Cfg
+    end
+    
+    function Cfg.Set(value)
+        local Selected = {}
+        local IsTable = type(value) == "table"
+        for _,option in Cfg.OptionInstances do 
+            if option.Text == value or (IsTable and table.find(value, option.Text)) then 
+                table.insert(Selected, option.Text)
+                Cfg.MultiItems = Selected
+                option.TextColor3 = themes.preset.text_color
+            else
+                option.TextColor3 = rgb(179, 179, 179)
+            end
+        end
+        Items.InnerText.Text = IsTable and table.concat(Selected, ", ") or Selected[1] or ""
+        Flags[Cfg.Flag] = IsTable and Selected or Selected[1]
+        Cfg.Callback(Flags[Cfg.Flag]) 
+    end
+    
+    function Cfg.RefreshOptions(options) 
+        for _,option in Cfg.OptionInstances do 
+            option:Destroy() 
+        end
+        Cfg.OptionInstances = {} 
+        for _,option in options do
+            local Button = Cfg.RenderOption(option)
+            Button.MouseButton1Down:Connect(function()
+                if Cfg.Multi then 
+                    local Selected = table.find(Cfg.MultiItems, Button.Text)
+                    if Selected then 
+                        table.remove(Cfg.MultiItems, Selected)
+                    else
+                        table.insert(Cfg.MultiItems, Button.Text)
+                    end
+                    Cfg.Set(Cfg.MultiItems) 				
+                else 
+                    Cfg.SetVisible(false)
+                    Cfg.Open = false
+                    Cfg.Set(Button.Text)
+                end
+            end)
+        end
+    end
+
+    Items.Outline.MouseButton1Click:Connect(function()
+        Cfg.Open = not Cfg.Open 
+        Cfg.SetVisible(Cfg.Open)
+    end)
+
+    Library:Connection(UserInputService.InputBegan, function(input, game_event)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or (TouchEnabled and input.UserInputType == Enum.UserInputType.Touch) then
+            if Items.DropdownElements.Visible and not Library:Hovering({Items.DropdownElements, Items.Dropdown}) then
+                Cfg.SetVisible(false)
+                Cfg.Open = false
+            end 
+        end 
+    end)
+
+    Flags[Cfg.Flag] = {} 
+    ConfigFlags[Cfg.Flag] = Cfg.Set
+    
+    Cfg.RefreshOptions(Cfg.Options)
+    Cfg.Set(Cfg.Default)
+        
+    return setmetatable(Cfg, Library)
+end
+
+function Library:Keybind(properties) 
+    local Cfg = {
+        Flag = properties.Flag or properties.Name;
+        Callback = properties.Callback or function() end;
+        Name = properties.Name or nil; 
+        Key = properties.Key or nil;
+        Mode = properties.Mode or "Toggle";
+        Active = properties.Default or false; 
+        Show = properties.ShowInList or true;
+        Open = false;
+        Binding;
+        Ignore = false;
+        Items = {}
+    }
+
+    Flags[Cfg.Flag] = {
+        Mode = Cfg.Mode,
+        Key = Cfg.Key, 
+        Active = Cfg.Active
+    }
+
+    local Items = Cfg.Items; do 
+        Items.KeybindOutline = Library:Create("TextButton", {
+            Parent = self.Items.Components;
+            AutoButtonColor = false;
+            Text = "";
+            Name = "\0";
+            Size = dim2(0, 10, 0, 11);
+            BorderColor3 = rgb(0, 0, 0);
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.X;
+            BackgroundColor3 = themes.preset.inline
+        })
+        Library:Themify(Items.KeybindOutline, "inline", "BackgroundColor3")
+        
+        Items.Inline = Library:Create("Frame", {
+            Parent = Items.KeybindOutline;
+            Size = dim2(1, -2, 1, -2);
+            Name = "\0";
+            Position = dim2(0, 1, 0, 1);
+            BorderColor3 = rgb(0, 0, 0);
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.X;
+            BackgroundColor3 = themes.preset.background
+        })
+        Library:Themify(Items.Inline, "background", "BackgroundColor3")
+        
+        Items.Key = Library:Create("TextLabel", {
+            FontFace = Library.Font;
+            TextColor3 = themes.preset.text_color;
+            BorderColor3 = rgb(0, 0, 0);
+            Text = Keys[Cfg.Key] or "NONE";
+            Parent = Items.Inline;
+            BackgroundTransparency = 1;
+            Name = "\0";
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.XY;
+            TextSize = 12;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+        
+        Library:Create("UIStroke", {
+            Parent = Items.Key;
+            LineJoinMode = Enum.LineJoinMode.Miter
+        })
+        
+        Library:Create("UIPadding", {
+            Parent = Items.Key;
+            PaddingTop = dim(0, -2);
+            PaddingRight = dim(0, 2);
+            PaddingLeft = dim(0, 4)
+        })
+        
+        Library:Create("UIPadding", {
+            PaddingRight = dim(0, 2);
+            Parent = Items.KeybindOutline
+        })
+        
+        Items.ModeHolder = Library:Create("Frame", {
+            Parent = Library.Items;
+            Size = dim2(0, 150, 0, 44);
+            Name = "\0";
+            BorderColor3 = rgb(0, 0, 0);
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.XY;
+            BackgroundColor3 = themes.preset.inline
+        })
+        Library:Themify(Items.ModeHolder, "inline", "BackgroundColor3")
+        
+        Items.UIStroke = Library:Create("UIStroke", {
+            Color = themes.preset.outline;
+            LineJoinMode = Enum.LineJoinMode.Miter;
+            Parent = Items.ModeHolder
+        })
+        Library:Themify(Items.UIStroke, "outline", "Color")
+        
+        Items.Inline = Library:Create("Frame", {
+            Parent = Items.ModeHolder;
+            Name = "\0";
+            Position = dim2(0, 1, 0, 1);
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, -2, 1, -2);
+            BorderSizePixel = 0;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+        
+        local gradient = Library:Create("UIGradient", {
+            Rotation = 90;
+            Parent = Items.Inline;
+            Color = rgbseq{rgbkey(0, themes.preset.inline), rgbkey(1, themes.preset.gradient)}
+        })
+        Library:SaveGradient(gradient, "Selected")
+        
+        Items.Elements = Library:Create("Frame", {
+            BorderColor3 = rgb(0, 0, 0);
+            Parent = Items.Inline;
+            AnchorPoint = vec2(0, 0.5);
+            Name = "\0";
+            BackgroundTransparency = 1;
+            Position = dim2(0, 5, 0.5, 0);
+            Size = dim2(1, -10, 0, 0);
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.Y;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+        
+        Library:Create("UIListLayout", {
+            Parent = Items.Elements;
+            Padding = dim(0, 4);
+            SortOrder = Enum.SortOrder.LayoutOrder
+        })
+        
+        Items.Accent = Library:Create("Frame", {
+            Name = "\0";
+            Parent = Items.ModeHolder;
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, 0, 0, 2);
+            BorderSizePixel = 0;
+            BackgroundColor3 = themes.preset.accent
+        })
+        Library:Themify(Items.Accent, "accent", "BackgroundColor3")
+        
+        Library:Create("UIGradient", {
+            Rotation = 90;
+            Parent = Items.Accent;
+            Color = rgbseq{rgbkey(0, rgb(255, 255, 255)), rgbkey(1, rgb(158, 158, 158))}
+        })
+        
+        Items.Outline = Library:Create("Frame", {
+            Parent = Items.ModeHolder;
+            Name = "\0";
+            Position = dim2(0, 0, 0, 2);
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, 0, 0, 1);
+            BorderSizePixel = 0;
+            BackgroundColor3 = themes.preset.outline
+        })
+        Library:Themify(Items.Outline, "outline", "BackgroundColor3")
+        
+        Items.Fade = Library:Create("Frame", {
+            Parent = Items.ModeHolder;
+            Name = "\0";
+            BackgroundTransparency = 1;
+            Position = dim2(0, 1, 0, 1);
+            BorderColor3 = rgb(0, 0, 0);
+            Size = dim2(1, -2, 1, -2);
+            BorderSizePixel = 0;
+            BackgroundColor3 = rgb(255, 255, 255)
+        })
+        
+        local gradient = Library:Create("UIGradient", {
+            Rotation = 90;
+            Parent = Items.Fade;
+            Color = rgbseq{rgbkey(0, themes.preset.inline), rgbkey(1, themes.preset.gradient)}
+        })
+        Library:SaveGradient(gradient, "Selected")
+
+        Items.Dropdown = setmetatable(Cfg, Library):Dropdown({
+            Name = "Mode", 
+            Options = {"Hold", "Toggle", "Always"}, 
+            Flag = Cfg.Flag .. "OPTION_SETTINGS", 
+            Callback = function(options)
+                if Cfg.Set then 
+                    Cfg.Set(options)
+                end
+            end
+        })
+        
+        if Cfg.Show then
+            Items.Keybinds = Library:Create("TextLabel", {
+                FontFace = Library.Font;
+                TextColor3 = themes.preset.text_color;
+                BorderColor3 = rgb(0, 0, 0);
+                Parent = Library.KeybindParent;
+                Name = "\0";
+                AutomaticSize = Enum.AutomaticSize.XY;
+                BackgroundTransparency = 1;
+                BorderSizePixel = 0;
+                RichText = true;
+                Visible = false;
+                ZIndex = 2;
+                TextSize = 12;
+                BackgroundColor3 = rgb(255, 255, 255)
+            })
+            
+            Items.KeybindsStroke = Library:Create("UIStroke", {
+                Parent = Items.Keybinds;
+                LineJoinMode = Enum.LineJoinMode.Miter
+            })                    
+        end 
+    end 
+
+    function Cfg.SetMode(mode) 
+        Cfg.Mode = mode 
+        if mode == "Always" then
+            Cfg.Set(true)
+        elseif mode == "Hold" then
+            Cfg.Set(false)
+        end
+        Flags[Cfg.Flag].Mode = mode
+    end
+
+    function Cfg.Set(input)
+        if type(input) == "boolean" then 
+            Cfg.Active = input
+            if Cfg.Mode == "Always" then 
+                Cfg.Active = true
+            end
+        elseif tostring(input):find("Enum") then 
+            input = input.Name == "Escape" and "NONE" or input
+            Cfg.Key = input or "NONE"	
+        elseif table.find({"Toggle", "Hold", "Always"}, input) then 
+            if input == "Always" then 
+                Cfg.Active = true 
+            end 
+            Cfg.Mode = input
+            Cfg.SetMode(Cfg.Mode) 
+        elseif type(input) == "table" then
+            input.Key = type(input.Key) == "string" and input.Key ~= "NONE" and Library:ConvertEnum(input.Key) or input.Key
+            input.Key = input.Key == Enum.KeyCode.Escape and "NONE" or input.Key
+            Cfg.Key = input.Key or "NONE"
+            Cfg.Mode = input.Mode or "Toggle"
+            if input.Active then
+                Cfg.Active = input.Active
+            end
+            Cfg.SetMode(Cfg.Mode) 
+        end 
+
+        Cfg.Callback(Cfg.Active)
+
+        local text = (tostring(Cfg.Key) ~= "Enums" and (Keys[Cfg.Key] or tostring(Cfg.Key):gsub("Enum.", "")) or nil)
+        local __text = text and tostring(text):gsub("KeyCode.", ""):gsub("UserInputType.", "")
+
+        Items.Key.Text = __text or "NONE"
+
+        if Items.Keybinds then
+            Items.Keybinds.TextTransparency = 1
+            Library:Tween(Items.Keybinds, {TextTransparency = 0})
+            Items.KeybindsStroke.Transparency = 1
+            Library:Tween(Items.KeybindsStroke, {Transparency = 0})
+            Items.Keybinds.Visible = Cfg.Active
+            Items.Keybinds.Text = string.format("[%s]: %s", __text or "NONE", Cfg.Name or Cfg.Flag or "Key")
+        end 
+
+        Flags[Cfg.Flag] = {
+            mode = Cfg.Mode,
+            key = Cfg.Key, 
+            active = Cfg.Active
+        }
+    end
+
+    function Cfg.SetVisible(bool)
+        Items.Fade.BackgroundTransparency = 0
+        Library:Tween(Items.Fade, {BackgroundTransparency = 1})
+        Items.ModeHolder.Visible = bool 
+        Items.ModeHolder.Position = dim2(0, Items.KeybindOutline.AbsolutePosition.X + 2, 0, Items.KeybindOutline.AbsolutePosition.Y + 74)
+    end
+
+    Items.KeybindOutline.MouseButton1Down:Connect(function()
+        task.wait()
+        Items.Key.Text = "..."	
+        Cfg.Binding = Library:Connection(UserInputService.InputBegan, function(keycode, game_event)  
+            Cfg.Set(keycode.KeyCode ~= Enum.KeyCode.Unknown and keycode.KeyCode or keycode.UserInputType)
+            Cfg.Binding:Disconnect() 
+            Cfg.Binding = nil
+        end)
+    end)
+
+    Items.KeybindOutline.MouseButton2Down:Connect(function()
+        Cfg.Open = not Cfg.Open 
+        Cfg.SetVisible(Cfg.Open)
+    end)
+
+    Library:Connection(UserInputService.InputBegan, function(input, game_event) 
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or (TouchEnabled and input.UserInputType == Enum.UserInputType.Touch) then
+            if Items.Dropdown and Items.Dropdown.Items and Items.Dropdown.Items.DropdownElements and Items.ModeHolder and Items.Dropdown.Items.DropdownElements.Visible and Items.ModeHolder.Visible and not (Library:Hovering(Items.Dropdown.Items.DropdownElements) or Library:Hovering(Items.ModeHolder)) then 
+                Items.Dropdown.SetVisible(false)
+                Items.Dropdown.Open = false
+                Cfg.SetVisible(false)
+                Cfg.Open = false
+            end 
+        end 
+        
+        if not game_event then
+            local selected_key = input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode or input.UserInputType
+            if selected_key == Cfg.Key then 
+                if Cfg.Mode == "Toggle" then 
+                    Cfg.Active = not Cfg.Active
+                    Cfg.Set(Cfg.Active)
+                elseif Cfg.Mode == "Hold" then 
+                    Cfg.Set(true)
+                end
+            end
+        end
+    end)    
+
+    Library:Connection(UserInputService.InputEnded, function(input, game_event) 
+        if game_event then 
+            return 
+        end 
+        local selected_key = input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode or input.UserInputType
+        if selected_key == Cfg.Key then
+            if Cfg.Mode == "Hold" then 
+                Cfg.Set(false)
+            end
+        end
+    end)
+    
+    Cfg.Set({Mode = Cfg.Mode, Active = Cfg.Active, Key = Cfg.Key})           
+    ConfigFlags[Cfg.Flag] = Cfg.Set
+    if Items.Dropdown then
+        Items.Dropdown.Set(Cfg.Mode)
+    end
+
+    return setmetatable(Cfg, Library)
+end
 return Library, Notifications, themes
