@@ -1020,7 +1020,7 @@ function Library:Window(properties)
             Parent = Items.Watermark;
             Name = "\0";
             BackgroundTransparency = 1;
-            Position = dim2(0, 14, 0, -2);
+            Position = dim2(0, 5, 0, -2);
             BorderSizePixel = 0;
             AutomaticSize = Enum.AutomaticSize.XY;
             TextSize = 12;
@@ -1040,16 +1040,7 @@ function Library:Window(properties)
             PaddingLeft = dim(0, 5)
         })
         
-        Library:Create("ImageLabel", {
-            BorderColor3 = rgb(0, 0, 0);
-            Parent = Items.Watermark;
-            Image = "rbxassetid://133601737414791";
-            BackgroundTransparency = 1;
-            Position = dim2(0, 3, 0, 2);
-            Size = dim2(0, 11, 0, 15);
-            BorderSizePixel = 0;
-            BackgroundColor3 = rgb(255, 255, 255)
-        })
+        
     end
 
     do
@@ -1753,19 +1744,7 @@ function Library:Slider(properties)
     end
     
     Items.Outline.MouseButton1Down:Connect(onInputBegin)
-    if TouchEnabled then
-        Items.Outline.TouchTap:Connect(onInputBegin)
-    end
-
-    Items.Minus.MouseButton1Down:Connect(function()
-        Cfg.Value = Cfg.Value - Cfg.Intervals
-        Cfg.Set(Cfg.Value)
-    end)
-
-    Items.Plus.MouseButton1Down:Connect(function()
-        Cfg.Value = Cfg.Value + Cfg.Intervals
-        Cfg.Set(Cfg.Value)
-    end)
+    
 
     Library:Connection(UserInputService.InputChanged, function(input)
         if Cfg.Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or (TouchEnabled and input.UserInputType == Enum.UserInputType.Touch)) then 
@@ -1921,7 +1900,7 @@ function Library:Textbox(properties)
         Items.Input = Library:Create("TextBox", {
             FontFace = Library.Font;
             ClearTextOnFocus = false;
-            Active = false;
+            Active = true;
             Selectable = false;
             PlaceholderColor3 = themes.preset.text_color;
             PlaceholderText = Cfg.PlaceHolder;
