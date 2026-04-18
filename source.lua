@@ -3062,4 +3062,238 @@ function library:new_window(cfg)
     --
     return window_tbl;
 end;
+-- // Zephyrus Drawing to Instance Converter
+do
+    local coregui = game:GetService("CoreGui")
+    local http = game:GetService("HttpService")
+    
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "Zephyrus"
+    screenGui.Parent = coregui
+    screenGui.ResetOnSpawn = false
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    
+    if not isfolder("zephyrus_converted") then makefolder("zephyrus_converted") end
+    
+    local imageCache = {}
+    local allDrawings = {}
+    
+    local function downloadImage(url, name)
+        local key = url
+        if imageCache[key] then return imageCache[key] end
+        local path = "zephyrus_converted/" .. (name or http:GenerateGUID(false)) .. ".png"
+        if isfile(path) then 
+            imageCache[key] = getcustomasset(path)
+            return imageCache[key]
+        end
+        local success, data = pcall(game.HttpGet, game, url)
+        if success and data and #data > 100 then
+            writefile(path, data)
+            imageCache[key] = getcustomasset(path)
+            return imageCache[key]
+        end
+        return nil
+    end
+    
+    local function safeVector(v)
+        if v and typeof(v) == "Vector2" then
+            return {X = v.X, Y = v.Y}
+        elseif v and typeof(v) == "UDim2" then
+            return {X = v.X.Offset, Y = v.Y.Offset}
+        end
+        return nil
+    end
+    
+    local function getDrawingType(obj)
+        if obj.__OBJECT_EXISTS then
+            local str = tostring(obj):match("Drawing%((%w+)%)")
+            if str then return str end
+        end
+        return "Square"
+    end
+    
+    local function convertDrawingToInstance(drawing)
+        if not drawing or not drawing.__OBJECT_EXISTS then return nil end
+        
+        local drawingType = getDrawingType(drawing)
+        local instance = nil
+        
+        if drawingType == "Square" then
+            instance = Instance.new("Frame")
+            instance.BackgroundColor3 = drawing.Color or Color3.new(1,1,1)
+            instance.BackgroundTransparency = 1 - (drawing.Transparency or 0)
+            instance.BorderSizePixel = 0
+            local size = safeVector(drawing.Size)
+            if size then instance.Size = UDim2.new(0, size.X, 0, size.Y) end
+            if drawing.Filled == false and drawing.Thickness and drawing.Thickness > 0 then
+                instance.BackgroundTransparency = 1
+                local stroke = Instance.new("UIStroke", instance)
+                stroke.Color = drawing.Color or Color3.new(1,1,1)
+                stroke.Thickness = drawing.Thickness
+                stroke.Transparency = drawing.Transparency or 0
+            end
+            
+        elseif drawingType == "Text" then
+            instance = Instance.new("TextLabel")
+            instance.Text = drawing.Text or ""
+            instance.TextColor3 = drawing.Color or Color3.new(1,1,1)
+            instance.TextTransparency = drawing.Transparency or 0
+            instance.TextStrokeTransparency = drawing.Outline and 0 or 1
+            instance.TextStrokeColor3 = drawing.OutlineColor or Color3.new(0,0,0)
+            instance.TextXAlignment = drawing.Center and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
+            instance.TextYAlignment = Enum.TextYAlignment.Top
+            instance.BackgroundTransparency = 1
+            instance.BorderSizePixel = 0
+            instance.TextSize = drawing.Size or 14
+            local bounds = safeVector(drawing.TextBounds)
+            if bounds and bounds.X > 0 then
+                instance.Size = UDim2.new(0, bounds.X, 0, bounds.Y)
+            elseif drawing.Size then
+                local size = safeVector(drawing.Size)
+                if size then instance.Size = UDim2.new(0, size.X, 0, size.Y) end
+            end
+            
+        elseif drawingType == "Image" then
+            instance = Instance.new("ImageLabel")
+            instance.BackgroundTransparency = 1
+            instance.BorderSizePixel = 0
+            instance.ScaleType = Enum.ScaleType.Fit
+            instance.ImageTransparency = drawing.Transparency or 0
+            if drawing.Data and type(drawing.Data) == "string" then
+                if drawing.Data:match("^https?://") then
+                    local asset = downloadImage(drawing.Data, tostring(drawing):match("0x%x+") or http:GenerateGUID(false))
+                    if asset then instance.Image = asset end
+                elseif drawing.Data:match("^rbxassetid://") then
+                    instance.Image = drawing.Data
+                elseif drawing.Data:match("^%d+$") then
+                    instance.Image = "rbxassetid://" .. drawing.Data
+                else
+                    instance.Image = drawing.Data
+                end
+            end
+            local size = safeVector(drawing.Size)
+            if size then instance.Size = UDim2.new(0, size.X, 0, size.Y) end
+            
+        elseif drawingType == "Circle" then
+            instance = Instance.new("Frame")
+            instance.BackgroundColor3 = drawing.Color or Color3.new(1,1,1)
+            instance.BackgroundTransparency = 1 - (drawing.Transparency or 0)
+            instance.BorderSizePixel = 0
+            local radius = drawing.Radius or 25
+            instance.Size = UDim2.new(0, radius * 2, 0, radius * 2)
+            local corner = Instance.new("UICorner", instance)
+            corner.CornerRadius = UDim.new(1, 0)
+            if drawing.Filled == false and drawing.Thickness and drawing.Thickness > 0 then
+                instance.BackgroundTransparency = 1
+                local stroke = Instance.new("UIStroke", instance)
+                stroke.Color = drawing.Color or Color3.new(1,1,1)
+                stroke.Thickness = drawing.Thickness
+                stroke.Transparency = drawing.Transparency or 0
+            end
+            
+        elseif drawingType == "Triangle" then
+            instance = Instance.new("Frame")
+            instance.BackgroundTransparency = 1
+            instance.BorderSizePixel = 0
+            local img = Instance.new("ImageLabel", instance)
+            img.Image = "rbxassetid://12838441462"
+            img.ScaleType = Enum.ScaleType.Fit
+            img.BackgroundTransparency = 1
+            img.Size = UDim2.new(1, 0, 1, 0)
+            img.ImageColor3 = drawing.Color or Color3.new(1,1,1)
+            img.ImageTransparency = drawing.Transparency or 0
+            local size = safeVector(drawing.Size)
+            if size then instance.Size = UDim2.new(0, size.X, 0, size.Y) end
+            
+        elseif drawingType == "Line" then
+            instance = Instance.new("Frame")
+            instance.BackgroundColor3 = drawing.Color or Color3.new(1,1,1)
+            instance.BackgroundTransparency = 1 - (drawing.Transparency or 0)
+            instance.BorderSizePixel = 0
+            local p1, p2 = drawing.From, drawing.To
+            if p1 and p2 then
+                local dx, dy = p2.X - p1.X, p2.Y - p1.Y
+                local length = math.sqrt(dx*dx + dy*dy)
+                local angle = math.atan2(dy, dx)
+                instance.Size = UDim2.new(0, length, 0, drawing.Thickness or 2)
+                instance.Position = UDim2.new(0, p1.X, 0, p1.Y)
+                instance.Rotation = math.deg(angle)
+            end
+            return instance
+            
+        elseif drawingType == "Quad" then
+            instance = Instance.new("Frame")
+            instance.BackgroundColor3 = drawing.Color or Color3.new(1,1,1)
+            instance.BackgroundTransparency = 1 - (drawing.Transparency or 0)
+            instance.BorderSizePixel = 0
+            local size = safeVector(drawing.Size)
+            if size then instance.Size = UDim2.new(0, size.X, 0, size.Y) end
+            if drawing.Filled == false and drawing.Thickness and drawing.Thickness > 0 then
+                instance.BackgroundTransparency = 1
+                local stroke = Instance.new("UIStroke", instance)
+                stroke.Color = drawing.Color or Color3.new(1,1,1)
+                stroke.Thickness = drawing.Thickness
+                stroke.Transparency = drawing.Transparency or 0
+            end
+        end
+        
+        if instance then
+            local pos = safeVector(drawing.Position)
+            if pos then instance.Position = UDim2.new(0, pos.X, 0, pos.Y) end
+            if drawing.ZIndex then instance.ZIndex = drawing.ZIndex end
+            if drawing.Visible ~= nil then instance.Visible = drawing.Visible end
+            instance.Name = "Converted_" .. drawingType
+        end
+        
+        return instance
+    end
+    
+    -- 劫持 utility.create 来记录所有 Drawing 对象
+    local oldCreate = utility.create
+    utility.create = function(class, properties)
+        local obj = oldCreate(class, properties)
+        if obj and obj.__OBJECT_EXISTS then
+            allDrawings[#allDrawings + 1] = obj
+        end
+        return obj
+    end
+    
+    -- 暴露转换方法到 library
+    function library:ConvertAllDrawingsToInstances()
+        local converted = 0
+        local failed = 0
+        
+        for i, drawing in pairs(allDrawings) do
+            if drawing and drawing.__OBJECT_EXISTS then
+                local inst = convertDrawingToInstance(drawing)
+                if inst then
+                    inst.Parent = screenGui
+                    converted = converted + 1
+                else
+                    failed = failed + 1
+                end
+            end
+        end
+        
+        for i, drawing in pairs(allDrawings) do
+            if drawing and drawing.__OBJECT_EXISTS then
+                pcall(function() drawing:Remove() end)
+            end
+        end
+        
+        allDrawings = {}
+        
+        print("[Zephyrus] Converted " .. converted .. " drawings to instances, " .. failed .. " failed")
+        return converted
+    end
+    
+    function library:AutoConvertOnInit()
+        task.spawn(function()
+            wait(0.5)
+            self:ConvertAllDrawingsToInstances()
+        end)
+    end
+end
+
 return library;
