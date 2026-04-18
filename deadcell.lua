@@ -958,6 +958,144 @@ function library:new_window(cfg)
                     set = function(key) update(key) end
                 }
             end
+            function section_tbl:new_keybindlist(kblcfg)
+                local flag = kblcfg.flag or nextFlag()
+                local keybinds = kblcfg.default or {}
+                
+                local holder = create("Frame", {
+                    Parent = content,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 16 + (#keybinds * 28)),
+                    ZIndex = 15
+                })
+                
+                create("TextLabel", {
+                    Parent = holder,
+                    Text = kblcfg.name,
+                    TextColor3 = library.theme.Text,
+                    TextSize = 13,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 13),
+                    TextXAlignment = 0
+                })
+                
+                local borderFrame = create("Frame", {
+                    Parent = holder,
+                    BackgroundColor3 = library.theme.ObjectBackground,
+                    Size = UDim2.new(1, 0, 0, #keybinds * 28),
+                    Position = UDim2.new(0, 0, 0, 16),
+                    ZIndex = 16
+                })
+                outline(borderFrame, library.theme.SectionInnerBorder, 1)
+                
+                local borderGradient = Instance.new("UIGradient")
+                borderGradient.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(160, 160, 160))
+                })
+                borderGradient.Rotation = 90
+                borderGradient.Parent = borderFrame
+                
+                local listContainer = create("Frame", {
+                    Parent = borderFrame,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -4, 1, -4),
+                    Position = UDim2.new(0, 2, 0, 2),
+                    ZIndex = 17
+                })
+                
+                local function rebuildList()
+                    for _, v in pairs(listContainer:GetChildren()) do
+                        if v:IsA("Frame") then v:Destroy() end
+                    end
+                    
+                    local yOffset = 0
+                    for i, bind in pairs(keybinds) do
+                        local bindFrame = create("Frame", {
+                            Parent = listContainer,
+                            BackgroundColor3 = library.theme.PageSelected,
+                            Size = UDim2.new(1, 0, 0, 24),
+                            Position = UDim2.new(0, 0, 0, yOffset),
+                            ZIndex = 18
+                        })
+                        
+                        local bindName = create("TextLabel", {
+                            Parent = bindFrame,
+                            Text = bind.name,
+                            TextColor3 = library.theme.Text,
+                            TextSize = 12,
+                            BackgroundTransparency = 1,
+                            Position = UDim2.new(0, 5, 0.5, -6),
+                            Size = UDim2.new(0.5, -10, 0, 12),
+                            TextXAlignment = 0,
+                            ZIndex = 19
+                        })
+                        
+                        local keyBtn = create("TextButton", {
+                            Parent = bindFrame,
+                            BackgroundColor3 = library.theme.ObjectBackground,
+                            Size = UDim2.new(0, 60, 0, 18),
+                            Position = UDim2.new(0.5, 10, 0.5, -9),
+                            Text = bind.key.Name,
+                            TextColor3 = library.theme.Text,
+                            TextSize = 10,
+                            ZIndex = 19
+                        })
+                        outline(keyBtn, library.theme.SectionInnerBorder, 1)
+                        
+                        local btn_gradient = Instance.new("UIGradient")
+                        btn_gradient.Color = ColorSequence.new({
+                            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+                            ColorSequenceKeypoint.new(1, Color3.fromRGB(160, 160, 160))
+                        })
+                        btn_gradient.Rotation = 90
+                        btn_gradient.Parent = keyBtn
+                        
+                        local binding = false
+                        
+                        keyBtn.MouseButton1Click:Connect(function()
+                            binding = true
+                            keyBtn.Text = "..."
+                        end)
+                        
+                        services.InputService.InputBegan:Connect(function(input)
+                            if binding then
+                                if input.UserInputType == Enum.UserInputType.Keyboard then
+                                    if input.KeyCode ~= Enum.KeyCode.Escape then
+                                        keybinds[i].key = input.KeyCode
+                                        keyBtn.Text = input.KeyCode.Name
+                                    else
+                                        keybinds[i].key = Enum.KeyCode.End
+                                        keyBtn.Text = "End"
+                                    end
+                                    binding = false
+                                    library.flags[flag] = keybinds
+                                    if kblcfg.callback then kblcfg.callback(keybinds) end
+                                end
+                            end
+                        end)
+                        
+                        yOffset = yOffset + 26
+                    end
+                end
+                
+                rebuildList()
+                library.flags[flag] = keybinds
+                
+                return {
+                    set = function(new_binds)
+                        keybinds = new_binds
+                        rebuildList()
+                        holder.Size = UDim2.new(1, 0, 0, 16 + (#keybinds * 28))
+                        borderFrame.Size = UDim2.new(1, 0, 0, #keybinds * 28)
+                        library.flags[flag] = keybinds
+                        if kblcfg.callback then kblcfg.callback(keybinds) end
+                    end,
+                    get = function()
+                        return keybinds
+                    end
+                }
+            end
             function section_tbl:new_label(lcfg)
                 local cp_count = 0
                 local holder = create("Frame", {
