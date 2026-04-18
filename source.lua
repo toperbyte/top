@@ -3069,7 +3069,7 @@ do
     
     
     local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "Zephyrus"
+    screenGui.Name = "Zephyrus_Converted"
     screenGui.Parent = coregui
     screenGui.ResetOnSpawn = false
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -3249,7 +3249,7 @@ do
         return instance
     end
     
-    -- 劫持 utility.create 来记录所有 Drawing 对象
+    
     local oldCreate = utility.create
     utility.create = function(class, properties)
         local obj = oldCreate(class, properties)
@@ -3259,7 +3259,7 @@ do
         return obj
     end
     
-    -- 暴露转换方法到 library
+    
     function library:ConvertAllDrawingsToInstances()
         local converted = 0
         local failed = 0
@@ -3296,4 +3296,7 @@ do
     end
 end
 
+library:AutoConvertOnInit()
+
+--library:ConvertAllDrawingsToInstances()
 return library;
