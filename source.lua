@@ -4,8 +4,6 @@ local settings = {
     default_accent = Color3.fromRGB(61, 100, 227); -- also stupid shit
 };
 
-local drawing = loadstring(game:HttpGet("https://github.com/GhostDuckyy/UI-Libraries/blob/main/DEADCELL%20REMAKE/misc/extension.lua?raw=true"))();
-local tween = loadstring(game:HttpGet("https://raw.githubusercontent.com/vozoid/utility/main/Tween.lua"))()
 
 -- // UI LIBRARY
 if not isfolder(settings.folder_name) then
@@ -181,7 +179,7 @@ library.gradient = images.gradient90 --decode("iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKC
 library.utility = utility
 
 function utility.outline(obj, color)
-    local outline = drawing:new("Square")
+    local outline = Drawing.new("Square")
     outline.Parent = obj
     outline.Size = UDim2.new(1, 2, 1, 2)
     outline.Position = UDim2.new(0, -1, 0, -1)
@@ -202,7 +200,7 @@ function utility.outline(obj, color)
 end
 
 function utility.create(class, properties)
-    local obj = drawing:new(class)
+    local obj = Drawing.new(class)
 
     for prop, v in next, properties do
         if prop == "Theme" then
