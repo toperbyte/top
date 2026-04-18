@@ -5546,227 +5546,102 @@ local m_thread = task do
 
     setreadonly(m_thread, true)
 end
--- // Auto Convert All Drawings to Instances (Runtime)
-do
-    local http = game:GetService("HttpService")
-    local coregui = game:GetService("CoreGui")
-    
-    if not isfolder("drawing_converted") then makefolder("drawing_converted") end
-    
+local function AutoConvertDrawingToInstance(library)
+    local CoreGui = game:GetService("CoreGui")
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "DrawingConvertedUI"
+    gui.IgnoreGuiInset = true
+    gui.Parent = CoreGui
+
     local cache = {}
-    
-    local function downloadImage(url, name)
-        local key = url
-        if cache[key] then return cache[key] end
-        local path = "drawing_converted/" .. (name or http:GenerateGUID(false)) .. ".png"
-        if isfile(path) then 
-            cache[key] = getcustomasset(path)
-            return cache[key]
-        end
-        local success, data = pcall(game.HttpGet, game, url)
-        if success and data and #data > 100 then
-            writefile(path, data)
-            cache[key] = getcustomasset(path)
-            return cache[key]
-        end
-        return nil
+
+    local function img(data)
+        local k = tostring(#data)
+        if cache[k] then return cache[k] end
+        local f = "d_"..k..".png"
+        if not isfile(f) then writefile(f,data) end
+        local a = getcustomasset(f)
+        cache[k] = a
+        return a
     end
-    
-    local fontMap = {
-        [Drawing.Fonts.UI] = Enum.Font.SourceSans,
-        [Drawing.Fonts.System] = Enum.Font.SourceSansBold,
-        [Drawing.Fonts.Plex] = Enum.Font.SourceSans,
-        [Drawing.Fonts.Monospace] = Enum.Font.Code,
-    }
-    
-    local function convertDrawing(drawing)
-        if not drawing or not drawing.__OBJECT_EXISTS then return nil end
-        
-        local drawingType = tostring(drawing):match("Drawing%((%w+)%)") or "Square"
-        local instance = nil
-        
-        if drawingType == "Square" then
-            instance = Instance.new("Frame")
-            instance.BackgroundColor3 = drawing.Color or Color3.new(1,1,1)
-            instance.BackgroundTransparency = 1 - (drawing.Transparency or 0)
-            instance.BorderSizePixel = 0
-            if drawing.Size then instance.Size = UDim2.new(0, drawing.Size.X, 0, drawing.Size.Y) end
-            if drawing.Filled == false and drawing.Thickness and drawing.Thickness > 0 then
-                instance.BackgroundTransparency = 1
-                local stroke = Instance.new("UIStroke", instance)
-                stroke.Color = drawing.Color or Color3.new(1,1,1)
-                stroke.Thickness = drawing.Thickness
-                stroke.Transparency = drawing.Transparency or 0
-            end
-            
-        elseif drawingType == "Text" then
-            instance = Instance.new("TextLabel")
-            instance.Text = drawing.Text or ""
-            instance.TextColor3 = drawing.Color or Color3.new(1,1,1)
-            instance.TextTransparency = drawing.Transparency or 0
-            instance.TextStrokeTransparency = drawing.Outline and 0 or 1
-            instance.TextStrokeColor3 = drawing.OutlineColor or Color3.new(0,0,0)
-            instance.TextXAlignment = drawing.Center and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
-            instance.TextYAlignment = Enum.TextYAlignment.Top
-            instance.Font = fontMap[drawing.Font] or Enum.Font.SourceSans
-            instance.TextSize = 14
-            instance.BackgroundTransparency = 1
-            instance.BorderSizePixel = 0
-            if drawing.Size then instance.Size = UDim2.new(0, drawing.Size.X, 0, drawing.Size.Y)
-            elseif drawing.TextBounds then instance.Size = UDim2.new(0, drawing.TextBounds.X, 0, drawing.TextBounds.Y) end
-            
-        elseif drawingType == "Image" then
-            instance = Instance.new("ImageLabel")
-            instance.BackgroundTransparency = 1
-            instance.BorderSizePixel = 0
-            instance.ScaleType = Enum.ScaleType.Fit
-            instance.ImageTransparency = drawing.Transparency or 0
-            if drawing.Data and type(drawing.Data) == "string" then
-                if drawing.Data:match("^https?://") then
-                    local asset = downloadImage(drawing.Data, tostring(drawing):match("0x%x+") or http:GenerateGUID(false))
-                    if asset then instance.Image = asset end
-                elseif drawing.Data:match("^rbxassetid://") then
-                    instance.Image = drawing.Data
-                elseif drawing.Data:match("^%d+$") then
-                    instance.Image = "rbxassetid://" .. drawing.Data
-                else
-                    instance.Image = drawing.Data
-                end
-            end
-            if drawing.Size then instance.Size = UDim2.new(0, drawing.Size.X, 0, drawing.Size.Y) end
-            
-        elseif drawingType == "Circle" then
-            instance = Instance.new("Frame")
-            instance.BackgroundColor3 = drawing.Color or Color3.new(1,1,1)
-            instance.BackgroundTransparency = 1 - (drawing.Transparency or 0)
-            instance.BorderSizePixel = 0
-            local radius = drawing.Radius or 25
-            instance.Size = UDim2.new(0, radius * 2, 0, radius * 2)
-            local corner = Instance.new("UICorner", instance)
-            corner.CornerRadius = UDim.new(1, 0)
-            if drawing.Filled == false and drawing.Thickness and drawing.Thickness > 0 then
-                local stroke = Instance.new("UIStroke", instance)
-                stroke.Color = drawing.Color or Color3.new(1,1,1)
-                stroke.Thickness = drawing.Thickness
-                stroke.Transparency = drawing.Transparency or 0
-            end
-            
-        elseif drawingType == "Triangle" then
-            instance = Instance.new("Frame")
-            instance.BackgroundTransparency = 1
-            instance.BorderSizePixel = 0
-            local img = Instance.new("ImageLabel", instance)
-            img.Image = "rbxassetid://12838441462"
-            img.ScaleType = Enum.ScaleType.Fit
-            img.BackgroundTransparency = 1
-            img.Size = UDim2.new(1, 0, 1, 0)
-            img.ImageColor3 = drawing.Color or Color3.new(1,1,1)
-            img.ImageTransparency = drawing.Transparency or 0
-            if drawing.Size then instance.Size = UDim2.new(0, drawing.Size.X, 0, drawing.Size.Y) end
-            
-        elseif drawingType == "Line" then
-            instance = Instance.new("Frame")
-            instance.BackgroundColor3 = drawing.Color or Color3.new(1,1,1)
-            instance.BackgroundTransparency = 1 - (drawing.Transparency or 0)
-            instance.BorderSizePixel = 0
-            local p1, p2 = drawing.From, drawing.To
-            if p1 and p2 then
-                local dx, dy = p2.X - p1.X, p2.Y - p1.Y
-                local length = math.sqrt(dx*dx + dy*dy)
-                local angle = math.atan2(dy, dx)
-                instance.Size = UDim2.new(0, length, 0, drawing.Thickness or 2)
-                instance.Position = UDim2.new(0, p1.X, 0, p1.Y)
-                instance.Rotation = math.deg(angle)
-            end
-            return instance
-            
-        elseif drawingType == "Quad" then
-            instance = Instance.new("Frame")
-            instance.BackgroundColor3 = drawing.Color or Color3.new(1,1,1)
-            instance.BackgroundTransparency = 1 - (drawing.Transparency or 0)
-            instance.BorderSizePixel = 0
-            if drawing.Size then instance.Size = UDim2.new(0, drawing.Size.X, 0, drawing.Size.Y) end
-            if drawing.Filled == false and drawing.Thickness and drawing.Thickness > 0 then
-                instance.BackgroundTransparency = 1
-                local stroke = Instance.new("UIStroke", instance)
-                stroke.Color = drawing.Color or Color3.new(1,1,1)
-                stroke.Thickness = drawing.Thickness
-                stroke.Transparency = drawing.Transparency or 0
-            end
+
+    local function conv(d)
+        if not d or not d.__OBJECT_EXISTS then return end
+        local c = d.ClassName
+        local o
+
+        if c == "Square" then
+            o = Instance.new("Frame")
+            o.Position = UDim2.fromOffset(d.Position.X,d.Position.Y)
+            o.Size = UDim2.fromOffset(d.Size.X,d.Size.Y)
+            o.BackgroundColor3 = d.Color
+            o.BackgroundTransparency = 1-(d.Transparency or 1)
+            o.BorderSizePixel = 0
+
+        elseif c == "Text" then
+            o = Instance.new("TextLabel")
+            o.BackgroundTransparency = 1
+            o.Text = d.Text or ""
+            o.TextColor3 = d.Color
+            o.TextSize = d.Size or 13
+            o.Position = UDim2.fromOffset(d.Position.X,d.Position.Y)
+            o.Font = Enum.Font.Code
+            o.TextStrokeTransparency = d.Outline and 0 or 1
+
+        elseif c == "Image" then
+            o = Instance.new("ImageLabel")
+            o.BackgroundTransparency = 1
+            o.Position = UDim2.fromOffset(d.Position.X,d.Position.Y)
+            o.Size = UDim2.fromOffset(d.Size.X,d.Size.Y)
+            if d.Data then o.Image = img(d.Data) end
+
+        elseif c == "Circle" then
+            o = Instance.new("Frame")
+            o.BackgroundColor3 = d.Color
+            o.BackgroundTransparency = 1-(d.Transparency or 1)
+            o.Size = UDim2.fromOffset(d.Radius*2,d.Radius*2)
+            o.Position = UDim2.fromOffset(d.Position.X-d.Radius,d.Position.Y-d.Radius)
+            o.BorderSizePixel = 0
+            local u = Instance.new("UICorner")
+            u.CornerRadius = UDim.new(1,0)
+            u.Parent = o
+
+        elseif c == "Line" then
+            o = Instance.new("Frame")
+            local f,t = d.From,d.To
+            local dx,dy = t.X-f.X,t.Y-f.Y
+            local dist = math.sqrt(dx*dx+dy*dy)
+            o.Size = UDim2.fromOffset(dist,d.Thickness or 1)
+            o.Position = UDim2.fromOffset(f.X,f.Y)
+            o.BackgroundColor3 = d.Color
+            o.BorderSizePixel = 0
+            o.Rotation = math.deg(math.atan2(dy,dx))
+
+        elseif c == "Triangle" then
+            o = Instance.new("Frame")
+            o.BackgroundTransparency = 1
+
+        elseif c == "Quad" then
+            o = Instance.new("Frame")
+            o.BackgroundTransparency = 1
         end
-        
-        if instance and drawing.Position then
-            instance.Position = UDim2.new(0, drawing.Position.X, 0, drawing.Position.Y)
+
+        if o then
+            o.ZIndex = d.ZIndex or 1
+            o.Visible = d.Visible
+            o.Parent = gui
         end
-        if instance and drawing.ZIndex then
-            instance.ZIndex = drawing.ZIndex
-        end
-        if instance and drawing.Visible ~= nil then
-            instance.Visible = drawing.Visible
-        end
-        if instance then
-            instance.Name = "Converted_" .. drawingType
-        end
-        
-        return instance
     end
-    
-    task.spawn(function()
-        wait(0.5)
-        local converted = 0
-        local failed = 0
-        
-        if library and library.drawings then
-            for i, v in pairs(library.drawings) do
-                local drawing = v[1]
-                if drawing and drawing.__OBJECT_EXISTS then
-                    local inst = convertDrawing(drawing)
-                    if inst then
-                        inst.Parent = coregui
-                        converted = converted + 1
-                    else
-                        failed = failed + 1
-                    end
-                end
-            end
-        end
-        
-        if library and library.hidden then
-            for i, v in pairs(library.hidden) do
-                local drawing = v[1]
-                if drawing and drawing.__OBJECT_EXISTS then
-                    local inst = convertDrawing(drawing)
-                    if inst then
-                        inst.Parent = coregui
-                        converted = converted + 1
-                    else
-                        failed = failed + 1
-                    end
-                end
-            end
-        end
-        
-        print("[DrawingToInstance] Converted: " .. converted .. " | Failed: " .. failed)
-        
-        if converted > 0 then
-            if library.drawings then
-                for i, v in pairs(library.drawings) do
-                    if v[1] and v[1].__OBJECT_EXISTS then
-                        pcall(function() v[1]:Remove() end)
-                    end
-                end
-                library.drawings = {}
-            end
-            if library.hidden then
-                for i, v in pairs(library.hidden) do
-                    if v[1] and v[1].__OBJECT_EXISTS then
-                        pcall(function() v[1]:Remove() end)
-                    end
-                end
-                library.hidden = {}
-            end
-            print("[DrawingToInstance] Original drawings cleaned up")
-        end
-    end)
+
+    for _,v in pairs(library.drawings) do
+        conv(v[1])
+    end
+
+    for _,v in pairs(library.hidden) do
+        conv(v[1])
+    end
 end
+AutoConvertDrawingToInstance(library)
+
 return library, library.pointers, theme -- utility
