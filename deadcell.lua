@@ -216,7 +216,15 @@ local function outline(obj, color, thickness)
     stroke.Parent = obj
     return stroke
 end
-
+local function out(obj, color, thickness)
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = color
+    stroke.Thickness = thickness or 1
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.LineJoinMode = Enum.LineJoinMode.Miter
+    stroke.Parent = obj
+    return stroke
+end
 local function textLength(str, fontSize)
     local textLabel = Instance.new("TextLabel")
     textLabel.FontFace = customFont
@@ -292,8 +300,8 @@ function library:new_window(cfg)
     
     local screenGui = create("ScreenGui", {Name = "ZephyrusUI", Parent = guiRoot, ZIndexBehavior = 1})
     local windowOutline = create("Frame", {Parent = screenGui, BackgroundColor3 = library.theme.WindowOutlineBackground, Size = UDim2.new(0, sizeX, 0, sizeY), Position = UDim2.new(0.5, -sizeX/2, 0.5, -sizeY/2), ZIndex = 1})
-    outline(windowOutline, Color3.fromRGB(0,0,0), 2)
-    outline(windowOutline, library.theme.WindowBorder, 1)
+    out(windowOutline, Color3.fromRGB(0,0,0), 2)
+    out(windowOutline, library.theme.WindowBorder, 1)
     
     local windowInline = create("Frame", {Parent = windowOutline, BackgroundColor3 = library.theme.WindowInlineBackground, Size = UDim2.new(1, -10, 1, -10), Position = UDim2.new(0, 5, 0, 5), ZIndex = 2})
     local accentBar = create("Frame", {Parent = windowInline, BackgroundColor3 = library.theme.Accent, Size = UDim2.new(1, -2, 0, 2), Position = UDim2.new(0, 1, 0, 1), ZIndex = 3})
@@ -324,7 +332,7 @@ function library:new_window(cfg)
         local pageTitle = create("TextLabel", {Parent = pageButton, Text = pcfg.name, TextColor3 = library.theme.Text, TextSize = 13, BackgroundTransparency = 1, Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), ZIndex = 7})
         local pageAccent = create("Frame", {Parent = pageButton, BackgroundColor3 = library.theme.Accent, Size = UDim2.new(1, 0, 0, 2), Position = UDim2.new(0, 0, 1, -2), Visible = false, ZIndex = 7})
         local page = create("Frame", {Parent = windowHolder, BackgroundTransparency = 1, Size = UDim2.new(1, -40, 1, -45), Position = UDim2.new(0, 20, 0, 40), Visible = false, ZIndex = 6, ClipsDescendants = false})
-        
+        addGradient(pageAccent)
         local function createScrollList(pos)
             local s = create("ScrollingFrame", {
                 Parent = page,
@@ -402,7 +410,7 @@ function library:new_window(cfg)
                     Position = UDim2.new(0, 0, 0.5, -6), 
                     ZIndex = 16
                 })
-                outline(box, library.theme.SectionInnerBorder, 1)
+                out(box, library.theme.SectionInnerBorder, 1)
                 addGradient(box)
                 
                 create("TextLabel", {
@@ -547,7 +555,7 @@ function library:new_window(cfg)
                 local holder = create("Frame", {Parent = content, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 28), ZIndex = 15})
                 create("TextLabel", {Parent = holder, Text = slcfg.name, TextColor3 = library.theme.Text, TextSize = 13, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 13), TextXAlignment = 0})
                 local back = create("Frame", {Parent = holder, BackgroundColor3 = library.theme.ObjectBackground, Size = UDim2.new(1, 0, 0, 6), Position = UDim2.new(0, 0, 0, 18), ZIndex = 14})
-                outline(back, library.theme.SectionInnerBorder, 1)
+                out(back, library.theme.SectionInnerBorder, 1)
                 local fill = create("Frame", {Parent = back, BackgroundColor3 = library.theme.Accent, Size = UDim2.new(0, 0, 1, 0), ZIndex = 15})
                 addGradient(fill)
                 local valText = create("TextLabel", {Parent = back, Text = "", TextColor3 = library.theme.Text, TextSize = 12, BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0), ZIndex = 16})
@@ -586,7 +594,7 @@ function library:new_window(cfg)
                 create("TextLabel", {Parent = holder, Text = dcfg.name, TextColor3 = library.theme.Text, TextSize = 13, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 13), TextXAlignment = 0})
                 
                 local background = create("TextButton", {Parent = holder, Name = "background", BackgroundColor3 = library.theme.ObjectBackground, Size = UDim2.new(1, 0, 0, 16), Position = UDim2.new(0, 0, 0, 16), Text = "", ZIndex = 21})
-                outline(background, library.theme.SectionInnerBorder, 1)
+                out(background, library.theme.SectionInnerBorder, 1)
                 
                 local valText = create("TextLabel", {
                     Parent = background, 
@@ -613,7 +621,7 @@ function library:new_window(cfg)
                 })
 
                 local optionHolder = create("Frame", {Parent = background, BackgroundColor3 = library.theme.ObjectBackground, Size = UDim2.new(1, 0, 0, 0), Position = UDim2.new(0, 0, 1, 1), Visible = false, ZIndex = 25, ClipsDescendants = true})
-                outline(optionHolder, library.theme.SectionInnerBorder, 1)
+                out(optionHolder, library.theme.SectionInnerBorder, 1)
                 local optionLayout = create("UIListLayout", {Parent = optionHolder, SortOrder = Enum.SortOrder.LayoutOrder})
 
                 local function updateVal()
@@ -733,7 +741,7 @@ function library:new_window(cfg)
                     BorderSizePixel = 0,
                     ZIndex = 16
                 })
-                outline(background, library.theme.SectionInnerBorder, 1)
+                out(background, library.theme.SectionInnerBorder, 1)
                 
                 local listLayout = create("UIListLayout", {
                     Parent = background, 
@@ -855,7 +863,7 @@ function library:new_window(cfg)
                     Position = UDim2.new(0, 0, 0, 16),
                     ZIndex = 16
                 })
-                outline(background, library.theme.SectionInnerBorder, 1)
+                out(background, library.theme.SectionInnerBorder, 1)
 
                 local box = create("TextBox", {
                     Parent = background,
@@ -927,7 +935,7 @@ function library:new_window(cfg)
                     TextSize = 10,
                     ZIndex = 16
                 })
-                outline(kb_btn, library.theme.SectionInnerBorder, 1)
+                out(kb_btn, library.theme.SectionInnerBorder, 1)
 
                 local function update(key)
                     current_key = key
