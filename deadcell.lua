@@ -212,6 +212,7 @@ local function outline(obj, color, thickness)
     stroke.Color = color
     stroke.Thickness = thickness or 1
     stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.LineJoinMode = Enum.LineJoinMode.Miter
     stroke.Parent = obj
     return stroke
 end
@@ -585,7 +586,15 @@ function library:new_window(cfg)
                 create("TextLabel", {Parent = holder, Text = dcfg.name, TextColor3 = library.theme.Text, TextSize = 13, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 13), TextXAlignment = 0})
                 
                 local background = create("TextButton", {Parent = holder, Name = "background", BackgroundColor3 = library.theme.ObjectBackground, Size = UDim2.new(1, 0, 0, 16), Position = UDim2.new(0, 0, 0, 16), Text = "", ZIndex = 21})
-                outline(background, library.theme.SectionInnerBorder, 1)
+                local outline = library:create("Frame", {
+                    Parent = outline,
+                    Name = "",
+                    Position = UDim2.new(0, 1, 0, 1),
+                    BorderColor3 = Color3.fromRGB(0, 0, 0),
+                    Size = UDim2.new(1, -2, 1, -2),
+                    BorderSizePixel = 0,
+                    BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+                })
                 
                 local valText = create("TextLabel", {
                     Parent = background, 
