@@ -586,7 +586,7 @@ function library:new_window(cfg)
                 create("TextLabel", {Parent = holder, Text = dcfg.name, TextColor3 = library.theme.Text, TextSize = 13, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 13), TextXAlignment = 0})
                 
                 local background = create("TextButton", {Parent = holder, Name = "background", BackgroundColor3 = library.theme.ObjectBackground, Size = UDim2.new(1, 0, 0, 16), Position = UDim2.new(0, 0, 0, 16), Text = "", ZIndex = 21})
-                local outline = library:create("Frame", {
+                local outline = create("Frame", {
                     Parent = outline,
                     Name = "",
                     Position = UDim2.new(0, 1, 0, 1),
