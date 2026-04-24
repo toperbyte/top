@@ -212,7 +212,7 @@ local function outline(obj, color, thickness)
     stroke.Color = color
     stroke.Thickness = thickness or 1
     stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    stroke.LineJoinMode = Enum.LineJoinMode.Miter
+   -- stroke.LineJoinMode = Enum.LineJoinMode.Miter
     stroke.Parent = obj
     return stroke
 end
