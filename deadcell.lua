@@ -391,9 +391,7 @@ function library:new_window(cfg)
         end)
     end
     
-    return section_tbl
-end
-
+    
     
             function section_tbl:new_toggle(tcfg)
                 local t_state = tcfg.state or false
