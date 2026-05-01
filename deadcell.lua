@@ -326,69 +326,101 @@ function library:new_window(cfg)
     end)
 
     function window_tbl:new_page(pcfg)
-        local page_tbl = {}
-        local pageButton = create("TextButton", {Parent = pagesHolder, BackgroundColor3 = library.theme.PageUnselected, Text = "", ZIndex = 6})
-        addGradient(pageButton)
-        local pageTitle = create("TextLabel", {Parent = pageButton, Text = pcfg.name, TextColor3 = library.theme.Text, TextSize = 13, BackgroundTransparency = 1, Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), ZIndex = 7})
-        local pageAccent = create("Frame", {Parent = pageButton, BackgroundColor3 = library.theme.Accent, Size = UDim2.new(1, 0, 0, 2), Position = UDim2.new(0, 0, 1, -2), Visible = false, ZIndex = 7})
-        local page = create("Frame", {Parent = windowHolder, BackgroundTransparency = 1, Size = UDim2.new(1, -40, 1, -45), Position = UDim2.new(0, 20, 0, 40), Visible = false, ZIndex = 6, ClipsDescendants = false})
-        addGradient(pageAccent)
-        local function createScrollList(pos)
-            local s = create("ScrollingFrame", {
-                Parent = page,
-                BackgroundTransparency = 1,
-                Size = UDim2.new(0.5, -14, 1, -10),
-                Position = pos,
-                CanvasSize = UDim2.new(0, 0, 0, 0),
-                ScrollBarThickness = 0,
-                ScrollingDirection = Enum.ScrollingDirection.Y,
-                ClipsDescendants = true,
-                ZIndex = 1
-            })
-            local layout = create("UIListLayout", {Parent = s, Padding = UDim.new(0, 20), SortOrder = Enum.SortOrder.LayoutOrder})
-            layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-                s.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 20)
-            end)
-            return s
-        end
+    local page_tbl = {}
+    local pageButton = create("TextButton", {Parent = pagesHolder, BackgroundColor3 = library.theme.PageUnselected, Text = "", ZIndex = 6})
+    addGradient(pageButton)
+    local pageTitle = create("TextLabel", {Parent = pageButton, Text = pcfg.name, TextColor3 = library.theme.Text, TextSize = 13, BackgroundTransparency = 1, Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5), ZIndex = 7})
+    local pageAccent = create("Frame", {Parent = pageButton, BackgroundColor3 = library.theme.Accent, Size = UDim2.new(1, 0, 0, 2), Position = UDim2.new(0, 0, 1, -2), Visible = false, ZIndex = 7})
+    local page = create("Frame", {Parent = windowHolder, BackgroundTransparency = 1, Size = UDim2.new(1, -40, 1, -45), Position = UDim2.new(0, 20, 0, 40), Visible = false, ZIndex = 6, ClipsDescendants = false})
+    addGradient(pageAccent)
 
-        local leftList = createScrollList(UDim2.new(0, 0, 0, 0))
-        local rightList = createScrollList(UDim2.new(0.5, 14, 0, 0))
-
-        table.insert(window_tbl.page_buttons, pageButton)
-        table.insert(window_tbl.page_accents, pageAccent)
-        table.insert(window_tbl.pages, page)
-        
-        local function updateTabs()
-            local w = 1 / #window_tbl.page_buttons
-            for i, v in ipairs(window_tbl.page_buttons) do v.Size = UDim2.new(w, 0, 1, 0) v.Position = UDim2.new(w*(i-1),0,0,0) end
-        end
-        updateTabs()
-
-        pageButton.MouseButton1Click:Connect(function()
-            for i, v in ipairs(window_tbl.pages) do v.Visible = (v == page) end
-            for i, v in ipairs(window_tbl.page_buttons) do v.BackgroundColor3 = (v == pageButton and library.theme.PageSelected or library.theme.PageUnselected) end
-            for i, v in ipairs(window_tbl.page_accents) do v.Visible = (v == pageAccent) end
-        end)
-
-        function page_tbl:new_section(scfg)
-    local section_tbl = {}
-    local side = (scfg.side == "left") and leftList or rightList
-    local section = create("Frame", {Parent = side, BackgroundColor3 = library.theme.SectionBackground, Size = UDim2.new(1, 0, 0, scfg.size or 100), ZIndex = 10, ClipsDescendants = false})
-    outline(section, library.theme.SectionOuterBorder, 1)
-    outline(section, library.theme.SectionInnerBorder, 1)
-    
-    local titleContainer = create("Frame", {Parent = section, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 20), Position = UDim2.new(0, 0, 0, -10), ZIndex = 11, ClipsDescendants = false})
-    local titleCover = create("Frame", {Parent = titleContainer, BackgroundColor3 = library.theme.SectionBackground, Size = UDim2.new(0, textLength(scfg.name, 13).X + 12, 0, 4), Position = UDim2.new(0, 8, 0, 14), ZIndex = 11, BorderSizePixel = 0})
-    local sectionTitle = create("TextLabel", {Parent = titleContainer, Text = scfg.name, TextColor3 = library.theme.Text, TextSize = 13, BackgroundTransparency = 1, Position = UDim2.new(0, 12, 0, 10), ZIndex = 12, AutomaticSize = Enum.AutomaticSize.XY})
-    
-    local content = create("Frame", {Parent = section, BackgroundTransparency = 1, Size = UDim2.new(1, -32, 1, -20), Position = UDim2.new(0, 16, 0, 12), ZIndex = 11, ClipsDescendants = false})
-    local layout = create("UIListLayout", {Parent = content, Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder})
-
-    if scfg.auto_size then
+    local function createScrollList(pos)
+        local s = create("ScrollingFrame", {
+            Parent = page,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0.5, -14, 1, -10),
+            Position = pos,
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            ScrollBarThickness = 0,
+            ScrollingDirection = Enum.ScrollingDirection.Y,
+            ClipsDescendants = false,
+            ZIndex = 1
+        })
+        local layout = create("UIListLayout", {Parent = s, Padding = UDim.new(0, 25), SortOrder = Enum.SortOrder.LayoutOrder})
         layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            section.Size = UDim2.new(1, 0, 0, layout.AbsoluteContentSize.Y + 30)
+            s.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 20)
         end)
+        return s
+    end
+
+    local leftList = createScrollList(UDim2.new(0, 0, 0, 10))
+    local rightList = createScrollList(UDim2.new(0.5, 14, 0, 10))
+
+    table.insert(window_tbl.page_buttons, pageButton)
+    table.insert(window_tbl.page_accents, pageAccent)
+    table.insert(window_tbl.pages, page)
+    
+    local function updateTabs()
+        local w = 1 / #window_tbl.page_buttons
+        for i, v in ipairs(window_tbl.page_buttons) do 
+            v.Size = UDim2.new(w, 0, 1, 0) 
+            v.Position = UDim2.new(w*(i-1), 0, 0, 0) 
+        end
+    end
+    updateTabs()
+
+    pageButton.MouseButton1Click:Connect(function()
+        for i, v in ipairs(window_tbl.pages) do v.Visible = (v == page) end
+        for i, v in ipairs(window_tbl.page_buttons) do v.BackgroundColor3 = (v == pageButton and library.theme.PageSelected or library.theme.PageUnselected) end
+        for i, v in ipairs(window_tbl.page_accents) do v.Visible = (v == pageAccent) end
+    end)
+
+    function page_tbl:new_section(scfg)
+        local section_tbl = {}
+        local side = (scfg.side == "left") and leftList or rightList
+        local section = create("Frame", {Parent = side, BackgroundColor3 = library.theme.SectionBackground, Size = UDim2.new(1, 0, 0, scfg.size or 100), ZIndex = 10, ClipsDescendants = false})
+        
+        outline(section, library.theme.SectionOuterBorder, 1)
+        outline(section, library.theme.SectionInnerBorder, 1)
+        
+        local titleText = scfg.name
+        local textW = textLength(titleText, 13).X
+
+        local titleCover = create("Frame", {
+            Parent = section, 
+            BackgroundColor3 = library.theme.SectionBackground, 
+            Size = UDim2.new(0, textW + 10, 0, 2), 
+            Position = UDim2.new(0, 10, 0, 0), 
+            AnchorPoint = Vector2.new(0, 0.5),
+            ZIndex = 11, 
+            BorderSizePixel = 0
+        })
+
+        local sectionTitle = create("TextLabel", {
+            Parent = section, 
+            Text = titleText, 
+            TextColor3 = library.theme.Text, 
+            TextSize = 13, 
+            BackgroundTransparency = 1, 
+            Position = UDim2.new(0, 15, 0, 0), 
+            AnchorPoint = Vector2.new(0, 0.5),
+            ZIndex = 12, 
+            AutomaticSize = Enum.AutomaticSize.XY
+        })
+        
+        local content = create("Frame", {Parent = section, BackgroundTransparency = 1, Size = UDim2.new(1, -32, 1, -20), Position = UDim2.new(0, 16, 0, 12), ZIndex = 11, ClipsDescendants = false})
+        local layout = create("UIListLayout", {Parent = content, Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder})
+
+        if scfg.auto_size then
+            layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                section.Size = UDim2.new(1, 0, 0, layout.AbsoluteContentSize.Y + 25)
+            end)
+        end
+
+        return section_tbl
+    end
+
+    return page_tbl
     end
             function section_tbl:new_toggle(tcfg)
                 local t_state = tcfg.state or false
@@ -406,7 +438,7 @@ function library:new_window(cfg)
                 local box = create("Frame", {
                     Parent = holder, 
                     BackgroundColor3 = library.theme.ObjectBackground, 
-                    Size = UDim2.new(0, 12, 0, 12), 
+                    Size = UDim2.new(0, 6, 0, 6), 
                     Position = UDim2.new(0, 0, 0.5, -6), 
                     ZIndex = 16
                 })
