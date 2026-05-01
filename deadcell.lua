@@ -342,8 +342,8 @@ function library:new_window(cfg)
                 CanvasSize = UDim2.new(0, 0, 0, 0),
                 ScrollBarThickness = 0,
                 ScrollingDirection = Enum.ScrollingDirection.Y,
-                ClipsDescendants = false,
-                ZIndex = 1
+                ClipsDescendants = true,
+                ZIndex = 5
             })
             local layout = create("UIListLayout", {Parent = s, Padding = UDim.new(0, 25), SortOrder = Enum.SortOrder.LayoutOrder})
             layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
@@ -370,19 +370,19 @@ function library:new_window(cfg)
             for i, v in ipairs(window_tbl.page_buttons) do v.BackgroundColor3 = (v == pageButton and library.theme.PageSelected or library.theme.PageUnselected) end
             for i, v in ipairs(window_tbl.page_accents) do v.Visible = (v == pageAccent) end
         end)
-
+--botch
         function page_tbl:new_section(scfg)
     local section_tbl = {}
     local side = (scfg.side == "left") and leftList or rightList
-    local section = create("Frame", {Parent = side, BackgroundColor3 = library.theme.SectionBackground, Size = UDim2.new(1, 0, 0, scfg.size or 100), ZIndex = 10, ClipsDescendants = false})
+    local section = create("Frame", {Parent = side, BackgroundColor3 = library.theme.SectionBackground, Size = UDim2.new(1, 0, 0, scfg.size or 100), ZIndex = 6, ClipsDescendants = false})
     outline(section, library.theme.SectionOuterBorder, 1)
     outline(section, library.theme.SectionInnerBorder, 1)
     
     local textW = textLength(scfg.name, 13).X
-    local titleCover = create("Frame", {Parent = section, BackgroundColor3 = library.theme.SectionBackground, Size = UDim2.new(0, textW + 10, 0, 2), Position = UDim2.new(0, 10, 0, 0), AnchorPoint = Vector2.new(0, 0.5), ZIndex = 11, BorderSizePixel = 0})
-    local sectionTitle = create("TextLabel", {Parent = section, Text = scfg.name, TextColor3 = library.theme.Text, TextSize = 13, BackgroundTransparency = 1, Position = UDim2.new(0, 15, 0, 0), AnchorPoint = Vector2.new(0, 0.5), ZIndex = 12, AutomaticSize = Enum.AutomaticSize.XY})
+    local titleCover = create("Frame", {Parent = section, BackgroundColor3 = library.theme.SectionBackground, Size = UDim2.new(0, textW + 10, 0, 2), Position = UDim2.new(0, 10, 0, 0), AnchorPoint = Vector2.new(0, 0.5), ZIndex = 7, BorderSizePixel = 0})
+    local sectionTitle = create("TextLabel", {Parent = section, Text = scfg.name, TextColor3 = library.theme.Text, TextSize = 13, BackgroundTransparency = 1, Position = UDim2.new(0, 15, 0, 0), AnchorPoint = Vector2.new(0, 0.5), ZIndex = 8, AutomaticSize = Enum.AutomaticSize.XY})
     
-    local content = create("Frame", {Parent = section, BackgroundTransparency = 1, Size = UDim2.new(1, -32, 1, -20), Position = UDim2.new(0, 16, 0, 12), ZIndex = 11, ClipsDescendants = false})
+    local content = create("Frame", {Parent = section, BackgroundTransparency = 1, Size = UDim2.new(1, -32, 1, -20), Position = UDim2.new(0, 16, 0, 12), ZIndex = 7, ClipsDescendants = false})
     local layout = create("UIListLayout", {Parent = content, Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder})
 
     if scfg.auto_size then
@@ -390,6 +390,7 @@ function library:new_window(cfg)
             section.Size = UDim2.new(1, 0, 0, layout.AbsoluteContentSize.Y + 25)
         end)
     end
+    
     
     
     
@@ -409,8 +410,8 @@ function library:new_window(cfg)
                 local box = create("Frame", {
                     Parent = holder, 
                     BackgroundColor3 = library.theme.ObjectBackground, 
-                    Size = UDim2.new(0, 6, 0, 6), 
-                    Position = UDim2.new(0, 0, 0.5, -6), 
+                    Size = UDim2.new(0, 8, 0, 8), 
+                    Position = UDim2.new(0, 0, 0.5, -4), 
                     ZIndex = 16
                 })
                 out(box, library.theme.SectionInnerBorder, 1)
