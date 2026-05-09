@@ -12,7 +12,7 @@ local function setupFonts()
     end
     local fontPath = settings.folder_name .. "/fonts/main.ttf"
     if not isfile(fontPath) then
-        writefile(fontPath, game:HttpGet("https://github.com/i77lhm/storage/raw/refs/heads/main/fonts/ProggyClean.ttf"))
+        writefile(fontPath, game:HttpGet("https://github.com/i77lhm/storage/raw/refs/heads/main/fonts/ProggyTiny.ttf"))
     end
     local fontData = {
         name = "CustomFont",
